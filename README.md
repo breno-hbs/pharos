@@ -6,7 +6,9 @@
 
 **Nome da CitizenTech:** Pharos — Plataforma de mobilidade com informações históricas de segurança.
 
-**Cidade e bairro:** Região Metropolitana de São Paulo (Grande São Paulo). Município, bairro e trajeto piloto ainda serão definidos após a validação dos dados disponíveis.
+**Cidade e bairro:** São Paulo–SP, Capão Redondo, Zona Sul, na Grande São Paulo.
+
+**Território piloto:** Trecho da Estrada de Itapecerica, com foco preliminar nas linhas metropolitanas 001 e 002 da ARTESP. A delimitação do trecho e a existência de trajetos alternativos ainda dependem de validação técnica.
 
 **Cidadão beneficiado:** Estudantes, trabalhadores e demais pessoas que utilizam ônibus, metrô e trem para seus deslocamentos, especialmente em horários noturnos ou em regiões pouco conhecidas.
 
@@ -43,7 +45,7 @@
 Projeto acadêmico da Global Solution FIAP 2026.2, em fase de definição e validação técnica.
 
 **Pendências atuais:**
-- Escolher o território piloto.
+- Validar a delimitação do trecho da Estrada de Itapecerica e verificar se há trajetos alternativos.
 - Validar a granularidade e a qualidade dos dados da SSP-SP.
 - Confirmar as conexões de transporte do MVP.
 - Consolidar a arquitetura e os contratos de integração.

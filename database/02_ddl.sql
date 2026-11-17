@@ -3,7 +3,7 @@
 -- Global Solution 2026 (2º semestre) - FIAP - Database Design
 -- Script 02 - DDL (estrutura do banco) - Oracle Database
 --
--- Integrantes (turma 2ESPX):
+-- Equipe: Pharos (turma 2ESPX)
 --   Breno Henrique Bortoloti Santos - RM562856
 --   Lucas Santana Silva             - RM566261
 --   Nicolas Tetsuo Kimura           - RM565377

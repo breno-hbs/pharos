@@ -6,13 +6,14 @@ Banco Oracle do Pharos. Ele guarda a rede piloto de transporte, os trajetos já 
 
 | Arquivo | Conteúdo |
 |---|---|
+| `01_documentacao_modelo.pdf` | Documentação da disciplina (itens 1 e 2): capa da Equipe Pharos, sumário, objetivo, escopo, funcionalidades, tabelas, cardinalidades, os dois diagramas e a execução no Oracle |
 | `02_ddl.sql` | Estrutura: 10 tabelas `PH_*`, 10 chaves primárias, 9 UNIQUE, 28 CHECK, 16 chaves estrangeiras (via `ALTER TABLE`), 3 índices e comentários no dicionário de dados |
 | `03_dml.sql` | 81 registros de exemplo e uma consulta de conferência no final |
 | `04_dql.sql` | As três consultas pedidas na disciplina |
 | `diagramas/diagrama_logico.png` | Modelo lógico, exportado do Oracle SQL Developer Data Modeler |
 | `diagramas/diagrama_relacional.png` | Modelo relacional, exportado do Oracle SQL Developer Data Modeler |
 
-A numeração começa em 02 porque o 01 é o PDF da documentação (`01_documentacao_modelo.pdf`). Ele entra nesta pasta quando a capa estiver fechada: falta definir o nome da equipe.
+Os arquivos de 01 a 04 são os entregáveis da disciplina no formato pedido: o PDF com os itens 1 e 2, e os scripts em `.sql` editáveis.
 
 ## Como executar
 
@@ -93,4 +94,3 @@ Depois dessa execução, só uma linha de comentário do cabeçalho do `02_ddl.s
 - Trocar os indicadores simulados pelo cálculo com os dados da SSP-SP.
 - Preencher latitude e longitude das paradas a partir do `stops.txt` do GTFS.
 - Carregar o resultado completo do módulo de Dynamic Programming, além dos pares de exemplo.
-- Incluir o PDF da documentação quando o nome da equipe estiver definido.

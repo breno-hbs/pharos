@@ -1,0 +1,3 @@
+# PDF e imagens são binários: sem diff de texto e sem conversão de fim de linha
+*.pdf binary
+*.png binary

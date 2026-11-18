@@ -81,11 +81,15 @@ export function offsetTime(time: string, offset: number) {
   return [Math.floor(total / 60), total % 60].map((value) => String(value).padStart(2, "0")).join(":");
 }
 
+/** Pares origem→destino com alternativas no banco de exemplo (ids das paradas). */
+const DEMO_PAIRS: readonly (readonly [string, string])[] = [["2", "1"], ["1", "3"], ["4", "5"], ["4", "1"], ["6", "7"]];
+
 export function tripFromParams(params: Pick<URLSearchParams, "get">, stops: readonly Stop[]): Trip {
   const known = (id: string | null) => stops.find((stop) => stop.id === id)?.id;
-  // Padrão: uma parada comum até o terminal, par que existe no banco de exemplo.
-  const origin = known(params.get("origem")) ?? stops.find((stop) => !stop.terminal)?.id ?? stops[0]?.id ?? "";
-  const destination = known(params.get("destino")) ?? stops.find((stop) => stop.terminal && stop.id !== origin)?.id ?? stops.find((stop) => stop.id !== origin)?.id ?? "";
+  // Padrão: par com trajeto calculado no banco de exemplo (03_dml.sql, cenário UTIL_MANHA).
+  const demo = DEMO_PAIRS.find(([from, to]) => known(from) && known(to));
+  const origin = known(params.get("origem")) ?? demo?.[0] ?? stops[0]?.id ?? "";
+  const destination = known(params.get("destino")) ?? (!params.get("origem") ? demo?.[1] : undefined) ?? stops.find((stop) => stop.id !== origin)?.id ?? "";
   const time = params.get("hora");
   return {
     origin,

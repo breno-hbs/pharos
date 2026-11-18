@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
-export function Icon({ name }: { name: string }) {
+export function Icon({ name, tinted = false }: { name: string; tinted?: boolean }) {
+  if (tinted) {
+    return <span className="icon tinted-icon" style={{ maskImage: `url("/${name}.svg")` }} aria-hidden="true" />;
+  }
   return <img className="icon" src={`/${name}.svg`} alt="" aria-hidden="true" />;
 }
 

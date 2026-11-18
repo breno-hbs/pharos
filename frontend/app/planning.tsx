@@ -38,8 +38,10 @@ export function Planning({ trip, setTrip, onBack, onSubmit }: {
           <Icon name="clock" />
           <span>
             <span className="field-label">Sair às</span>
-            <span className="time-value">Hoje, 08 nov. · <input type="time" required value={trip.time} onChange={(event) => setTrip({ ...trip, time: event.target.value })} /></span>
+            <span className="time-value" aria-hidden="true">08 nov. · {trip.time || "—"}</span>
           </span>
+          <input aria-label="Horário de partida" className="time-input" type="time" required value={trip.time} onChange={(event) => setTrip({ ...trip, time: event.target.value })} />
+          <Icon name="down" />
         </label>
         <fieldset className="preferences">
           <legend>O que importa no seu trajeto?</legend>

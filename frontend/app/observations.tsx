@@ -22,14 +22,14 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
     <section className={`observation observation-${band}`} aria-labelledby={titleId}>
       {choice && (
         <div className="feedback" role="status">
-          <Icon name="check" />
+          <Icon name="check" tinted />
           <div><strong>{confirmed ? "Confirmação registrada" : "Contestação registrada"}</strong>
             <p>{confirmed ? `${observation.count} → ${count} confirmações. O pin está na faixa ${bandLabel}.` : "Sua contestação foi registrada na demonstração."}</p>
           </div>
         </div>
       )}
       <div className="observation-top">
-        <span><Icon name={category.icon} />{category.label}</span>
+        <span><Icon name={category.icon} tinted />{category.label}</span>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Fechar observação"><Icon name="close" /></button>
       </div>
       <h1 id={titleId}>{observation.place}</h1>
@@ -76,8 +76,10 @@ export function ReportForm({ route, location, onLocation, onCancel, onSend }: {
     event.preventDefault();
     const text = description.trim();
     if (!text || text.length > 500) return;
+    const bytes = crypto.getRandomValues(new Uint8Array(4));
+    const code = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
     onSend({
-      receipt: `PH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+      receipt: `PH-${code}`,
       status: "PENDENTE",
       category,
       location,
@@ -96,7 +98,7 @@ export function ReportForm({ route, location, onLocation, onCancel, onSend }: {
             {categories.map(({ id, label, icon }) => (
               <label key={id} className="report-category" data-selected={category === id}>
                 <input type="radio" name="categoria" value={id} checked={category === id} onChange={() => setCategory(id)} />
-                <Icon name={icon} />{label}
+                <Icon name={icon} tinted />{label}
               </label>
             ))}
           </div>

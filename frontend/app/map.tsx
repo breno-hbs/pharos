@@ -101,9 +101,9 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
           <span className="map-label place destination-label" style={labelStyle("destinationLabel")}>{getStop(trip.destination).short}</span>
         </>
       )}
-      {showAlternatives && (["a", "b", "c"] as const).map((route, i) => (
+      {showAlternatives && routes.map(({ id: route, minutes }) => (
         <span key={route} className={`map-label route-label route-${route} ${selected === route ? "current" : ""}`} style={labelStyle(route)}>
-          {route.toUpperCase()} · {[32, 39, 44][i]} min
+          {route.toUpperCase()} · {minutes} min
         </span>
       ))}
       {art.pins.cluster && filters.some((category) => category !== "theft") && !expanded && (
@@ -119,7 +119,11 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
         if (!coordinates) return null;
         const count = observations[id].count + Number(participation[id] === "confirmed");
         const marker = <><Icon name={icon} /><small>{count}</small></>;
-        const props = { className: `map-pin ${participationBand(count)}`, style: position(coordinates, art.size) };
+        const outsideRoute = showAlternatives && !(visibleRoute.warnings as readonly Category[]).includes(id);
+        const props = {
+          className: `map-pin ${participationBand(count)}${outsideRoute ? " outside-route" : ""}`,
+          style: position(coordinates, art.size),
+        };
         return onPin
           ? <button key={id} type="button" {...props} aria-label={`${label}, ${count} confirmações`} onClick={() => onPin(id)}>{marker}</button>
           : <span key={id} {...props} aria-label={`${label}, ${count} confirmações`}>{marker}</span>;
@@ -157,7 +161,7 @@ export function MapView({ mode, mobileMode, trip, selected = "a", available = tr
           <div className="map-filters" aria-label="Categorias visíveis no mapa">
             {categories.map(({ id, label, icon }) => (
               <button key={id} type="button" aria-pressed={!hidden.includes(id)} onClick={() => setHidden((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])}>
-                <Icon name={icon} />{label}
+                <Icon name={icon} tinted />{label}
               </button>
             ))}
             {hidden.length > 0 && <button className="clear-filters" type="button" onClick={() => setHidden([])}>Limpar filtros</button>}

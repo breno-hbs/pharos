@@ -40,7 +40,7 @@ export function Comparison({ trip, route, onEdit, onSort, onSelect, onDetails }:
                 <span className="route-stamp">{item.id.toUpperCase()}</span><strong>{item.caption}</strong>
                 <span className="route-warnings">
                   {categories.filter(({ id }) => (item.warnings as readonly Category[]).includes(id)).sort((a, b) => observations[b.id].count - observations[a.id].count).map(({ id, label, icon }) => (
-                    <span key={id} title={label} aria-label={`1 relato: ${label}`} data-category={id}><Icon name={icon} />1</span>
+                    <span key={id} title={label} aria-label={`1 relato: ${label}`} data-category={id}><Icon name={icon} tinted />1</span>
                   ))}
                 </span>
                 <span className="route-radio" aria-hidden="true">{selected ? "✓" : ""}</span>
@@ -67,7 +67,7 @@ export function HistoryCard({ className = "" }: { className?: string }) {
   return (
     <aside className={`history-card ${className}`}>
       <div className="history-title"><h2>Contexto histórico</h2><span>EXEMPLO SIMULADO</span></div>
-      <p>12 registros fictícios agregados no setor piloto. Sem associação a pessoas, endereços ou previsões.</p>
+      <p>12 registros fictícios agregados no setor piloto do Capão Redondo. Sem associação a pessoas, endereços ou previsões.</p>
       <div className="history-bars" aria-label="Registros simulados: julho 3, agosto 5, setembro 4">
         {[["Jul", 3], ["Ago", 5], ["Set", 4]].map(([month, count]) => (
           <div key={month}><span>{count}</span><i style={{ height: Number(count) * 6 }} /><span>{month}</span></div>
@@ -138,8 +138,8 @@ export function Details({ trip, route, participation, report, onBack, onPin, onR
                 <div className="timeline-title"><h2>{step.title}</h2><time>{offsetTime(trip.time, step.offset)}</time></div>
                 <p>{step.path}</p><p className="step-duration">{step.duration}</p>
                 {category && (
-                  <button type="button" className="step-warning" onClick={() => onPin(category.id)}>
-                    <Icon name={category.icon} />{category.label} · 1 aviso próximo · {observations[category.id].count + Number(participation[category.id] === "confirmed")} confirmações
+                  <button type="button" className="step-warning" data-category={category.id} onClick={() => onPin(category.id)}>
+                    <Icon name={category.icon} tinted />{category.label} · 1 aviso próximo · {observations[category.id].count + Number(participation[category.id] === "confirmed")} confirmações
                   </button>
                 )}
               </div>
@@ -158,8 +158,8 @@ export function Details({ trip, route, participation, report, onBack, onPin, onR
           const category = categories.find((item) => item.id === id)!;
           const observation = observations[id];
           return (
-            <button type="button" key={id} className="voice-card" onClick={() => onPin(id)}>
-              <span><Icon name={category.icon} /><strong>{category.label}</strong> <small>RELATO SIMULADO</small></span>
+            <button type="button" key={id} className="voice-card" data-category={id} onClick={() => onPin(id)}>
+              <span><Icon name={category.icon} tinted /><strong>{category.label}</strong> <small>RELATO SIMULADO</small></span>
               <p>{observation.description}</p><small>{observation.date} · {observation.count + Number(participation[id] === "confirmed")} confirmações</small>
             </button>
           );
@@ -167,12 +167,12 @@ export function Details({ trip, route, participation, report, onBack, onPin, onR
       </section>
       {report && (
         <div className="feedback" role="status">
-          <Icon name="check" /><div><strong>Observação enviada</strong>
+          <Icon name="check" tinted /><div><strong>Observação enviada</strong>
             <p>Recibo <b>{report.receipt}</b> · {report.status.toLowerCase()} de moderação. Envio simulado.</p>
           </div>
         </div>
       )}
-      <button type="button" className="button primary" onClick={onReport}><Icon name="plus" />Adicionar observação</button>
+      <button type="button" className="button primary" onClick={onReport}><Icon name="plus" tinted />Adicionar observação</button>
       <div className="mobile-only"><Legend /></div>
       <p className="fine-print">Informações para apoiar decisões, não para prever crimes ou garantir segurança. Confira condições e serviços por outros meios.</p>
     </div>

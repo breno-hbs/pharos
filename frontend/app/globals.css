@@ -334,3 +334,20 @@ select option { color: var(--text); background: var(--panel); }
 .empty-results h1 { margin-top: 14px; }
 .map-filters { flex-wrap: wrap; }
 .map-filters .clear-filters { color: var(--brand); }
+
+.tinted-icon { width: 18px; height: 18px; background: currentColor; mask-repeat: no-repeat; mask-size: contain; mask-position: center; }
+.map-filters .tinted-icon, .feedback .tinted-icon { color: var(--brand); }
+[data-category="theft"] .tinted-icon { color: var(--low); }
+[data-category="dark"] .tinted-icon { color: var(--medium); }
+[data-category="other"] .tinted-icon { color: var(--high); }
+.observation-top .tinted-icon { color: var(--pin-color); }
+.report-category .tinted-icon { color: var(--secondary); }
+.report-category[data-selected="true"] .tinted-icon { color: var(--brand); }
+
+.time-field { position: relative; }
+.time-field:focus-within { outline: 2px solid var(--brand); outline-offset: 3px; }
+.time-field .time-input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+.time-input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; padding: 0; cursor: pointer; }
+
+.map-pin.outside-route { opacity: .45; }
+.map-pin.outside-route:hover, .map-pin.outside-route:focus-visible { opacity: 1; }

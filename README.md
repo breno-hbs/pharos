@@ -29,6 +29,10 @@
 
 **Link do repositório:** https://github.com/breno-hbs/pharos
 
+**Site (front-end):** https://pharos-sand.vercel.app
+
+**API (deploy):** https://pharos-api-kaxr.onrender.com (teste rápido: `/saude`). O plano gratuito do Render dorme: a primeira chamada pode levar cerca de 1 minuto.
+
 **Indicador de impacto:** Percentual de participantes dos testes que conseguem comparar alternativas de deslocamento e compreender corretamente as informações históricas apresentadas e suas limitações. Indicadores complementares incluem tempo de resposta das consultas, validade dos caminhos e utilidade percebida pelos participantes.
 
 **ODS conectados:**

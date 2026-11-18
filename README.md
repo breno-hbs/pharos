@@ -8,13 +8,13 @@
 
 **Cidade e bairro:** São Paulo–SP, Capão Redondo, Zona Sul, na Grande São Paulo.
 
-**Território piloto:** Trecho da Estrada de Itapecerica, com foco preliminar nas linhas metropolitanas 001 e 002 da ARTESP. A delimitação do trecho e a existência de trajetos alternativos ainda dependem de validação técnica.
+**Território piloto:** Entorno do Terminal Metrô Capão Redondo. Inclui o trecho paulistano da Estrada de Itapecerica (corredor das linhas metropolitanas 001 e 002 da ARTESP), a Estrada do M'Boi Mirim, a Av. Comendador Sant'Anna, a Av. Carlos Lacerda e o trecho da Av. João Paulo II em Embu das Artes. A validação técnica mostrou que as linhas 001 e 002 fazem o mesmo itinerário na Estrada de Itapecerica; trajetos realmente diferentes aparecem com as 15 linhas da ARTESP que passam pelo terminal ou pelo fim do corredor (detalhes em [`dynamic-programming/docs/RELATORIO_VALIDACAO_DP.md`](dynamic-programming/docs/RELATORIO_VALIDACAO_DP.md)).
 
 **Cidadão beneficiado:** Estudantes, trabalhadores e demais pessoas que utilizam ônibus, metrô e trem para seus deslocamentos, especialmente em horários noturnos ou em regiões pouco conhecidas.
 
 **Problema, em uma frase:** Usuários do transporte público têm dificuldade para comparar trajetos considerando, além do tempo e das baldeações, informações históricas de ocorrências criminais nas áreas percorridas.
 
-**Como funciona:** O usuário seleciona uma origem e um destino dentro da região piloto. O Pharos calcula alternativas de deslocamento e permite compará-las considerando tempo estimado, distância de caminhada, quantidade de baldeações e registros históricos agregados de ocorrências criminais, quando os dados permitirem. A plataforma apresenta as fontes e limitações dessas informações, permitindo que o usuário escolha seu trajeto sem prometer que alguma alternativa seja segura.
+**Como funciona:** O usuário seleciona uma origem e um destino dentro da região piloto. O Pharos mostra até três alternativas de ônibus, calculadas antes a partir dos horários programados da ARTESP, e permite compará-las por tempo estimado, distância percorrida, quantidade de baldeações (sempre na mesma parada) e registros históricos agregados de ocorrências criminais, quando os dados permitirem. A distância de caminhada não é calculada; no protótipo, as etapas a pé são apenas simuladas na interface. A plataforma apresenta as fontes e limitações dessas informações, permitindo que o usuário escolha seu trajeto sem prometer que alguma alternativa seja segura.
 
 **O que cada parte faz:**
 
@@ -42,10 +42,9 @@
 
 ## Estado do projeto
 
-Projeto acadêmico da Global Solution FIAP 2026.2, em fase de definição e validação técnica.
+Projeto acadêmico da Global Solution FIAP 2026.2, em fase final de integração e entrega. A validação técnica do território e dos trajetos alternativos foi concluída em 06/11/2026, com o GTFS da ARTESP.
 
 **Pendências atuais:**
-- Validar a delimitação do trecho da Estrada de Itapecerica e verificar se há trajetos alternativos.
 - Validar a granularidade e a qualidade dos dados da SSP-SP.
 - Confirmar as conexões de transporte do MVP.
 - Consolidar a arquitetura e os contratos de integração.

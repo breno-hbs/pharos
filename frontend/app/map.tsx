@@ -81,15 +81,18 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
       <Layer frame={frame} name="axes" at={art.layers.roads!} size={art.size} />
       {showRoute && (
         <>
-          {showAlternatives && selected !== "a" && drawLayer("a", "route-inactive")}
           {(["b", "c"] as const).map((route) => {
             if (!showAlternatives && route !== selected) return null;
             const source = art.layers[route] ? frame : routeFrame;
             const geometry = art.layers[route] ? art : comparisonArt;
             return <Layer key={route} frame={source} name={route} at={geometry.layers[route]!} size={geometry.size} className={route === selected ? "route-highlight" : ""} />;
           })}
-          {selected === "a" && drawLayer("outline")}
-          {selected === "a" && drawLayer("a")}
+          {(showAlternatives || selected === "a") && (
+            <>
+              {drawLayer("outline", selected === "a" ? undefined : "route-outline-hidden")}
+              {drawLayer("a", selected === "a" ? undefined : "route-inactive")}
+            </>
+          )}
         </>
       )}
       {placeLabels.map(([key, text]) => art.labels[key] && <span key={key} className={`map-label ${key}`} style={labelStyle(key)}>{text}</span>)}

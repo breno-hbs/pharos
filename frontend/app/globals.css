@@ -169,9 +169,6 @@ select option { color: var(--text); background: var(--panel); }
   .screen-home .mobile-action { padding-block: 13px 14px; }
   .map-message { display: none; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .map-art { transition: none; }
-}
 
 .header-back { background: transparent; padding: 6px 4px 6px 0; }
 .screen-detail .workspace { grid-template-columns: clamp(370px, 33.33%, 480px) 1fr; }
@@ -351,3 +348,50 @@ select option { color: var(--text); background: var(--panel); }
 
 .map-pin.outside-route { opacity: .45; }
 .map-pin.outside-route:hover, .map-pin.outside-route:focus-visible { opacity: 1; }
+
+.route-outline-hidden { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel-content, .observation-sheet .observation, .observation-on-map .observation {
+    animation: panel-enter 220ms cubic-bezier(.2, .75, .25, 1);
+  }
+
+  .map-art, .map-message, .feedback, .route-card-selected {
+    animation: reveal 180ms ease-out;
+  }
+
+  .button, .map-pin, .map-cluster {
+    transition: scale 100ms ease-out, background-color 160ms ease, opacity 160ms ease;
+  }
+
+  .button:active:enabled, .map-pin:active, .map-cluster:active { scale: .97; }
+
+  .preference, .route-card, .report-category {
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, scale 100ms ease-out;
+  }
+
+  .preference:active, .route-card:active, .report-category:active { scale: .985; }
+
+  .map-filters button, .map-layer { transition: opacity 170ms ease; }
+  .route-label { transition: color 170ms ease, background-color 170ms ease; }
+  .map-message { animation-duration: 220ms; }
+
+  @media (hover: hover) {
+    .button .icon { transition: translate 160ms ease-out; }
+    .button:hover:enabled .icon { translate: 2px 0; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-art { transition: none; }
+}
+
+@keyframes panel-enter {
+  from { opacity: .4; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reveal {
+  from { opacity: .55; }
+  to { opacity: 1; }
+}

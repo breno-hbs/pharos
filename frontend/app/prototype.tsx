@@ -8,6 +8,7 @@ import { Observation, ReportForm } from "./observations";
 import { Planning } from "./planning";
 import { Comparison, Details, HistoryCard } from "./routes";
 import { Icon, Legend } from "./ui";
+import { useViewMotion } from "./view-motion";
 
 const screens = {
   home: "",
@@ -17,10 +18,12 @@ const screens = {
   report: "observacao",
 } as const;
 type Screen = keyof typeof screens;
+const screenOrder = Object.keys(screens) as Screen[];
 
 export default function Prototype() {
   const params = useSearchParams();
-  const screen = (Object.keys(screens) as Screen[]).find((key) => screens[key] === params.get("tela")) ?? "home";
+  const move = useViewMotion(params.toString());
+  const screen = screenOrder.find((key) => screens[key] === params.get("tela")) ?? "home";
   const [draft, setDraft] = useState(() => tripFromParams(params));
   const [participation, setParticipation] = useState<Participation>({});
   const [reportLocation, setReportLocation] = useState<Category>("dark");
@@ -51,14 +54,20 @@ export default function Prototype() {
       if (selected) search.set("rota", selected);
     }
     if (observation) search.set("pin", observation);
-    if (next === "plan") setDraft(query);
-    const href = search.size ? `/?${search}` : "/";
-    if (replace) {
-      window.history.replaceState(null, "", href);
-    } else {
-      window.history.pushState(null, "", href);
-      window.scrollTo(0, 0);
-    }
+    const nextQuery = search.toString();
+    const href = nextQuery ? `/?${nextQuery}` : "/";
+    const changesView = screen !== next || pin !== observation;
+    const goesBack = screenOrder.indexOf(next) < screenOrder.indexOf(screen) || Boolean(showPin && !observation);
+
+    move(nextQuery, () => {
+      if (next === "plan") setDraft(query);
+      if (replace) {
+        window.history.replaceState(null, "", href);
+      } else {
+        window.history.pushState(null, "", href);
+        window.scrollTo(0, 0);
+      }
+    }, changesView ? (goesBack ? "back" : "forward") : undefined);
   }
 
   const closePin = () => go(screen, { selected: route.id, replace: true });

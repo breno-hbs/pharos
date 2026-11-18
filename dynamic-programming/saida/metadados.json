@@ -1,0 +1,193 @@
+{
+  "fonte": "ARTESP - GTFS (dadosabertos.artesp.sp.gov.br/dataset/gtfs)",
+  "feed_version": "20261007",
+  "vigencia": "20260101-20261231",
+  "sha256_zip": "f3fdca9599e512e191f1bb78cebcafab1bac8a458fbdd5c5e71cc2d10d97d45a",
+  "bbox": {
+    "lat_min": -23.705,
+    "lat_max": -23.636,
+    "lon_min": -46.806,
+    "lon_max": -46.76
+  },
+  "paradas_ancora": [
+    "407",
+    "405",
+    "1443"
+  ],
+  "gerado_em": "2026-11-07T19:08:18",
+  "n_padroes": 34,
+  "n_linhas": 15,
+  "n_paradas_no_recorte": 237,
+  "todas_interpolacoes_uniformes": true,
+  "variacao_max_offset_s": 0.0,
+  "avisos": [
+    "padrão 484/0/4840: sai e volta ao recorte 1 vez(es)",
+    "padrão 484/1/4841: sai e volta ao recorte 1 vez(es)",
+    "padrão 531/0/1481: sai e volta ao recorte 1 vez(es)",
+    "padrão 531/1/1418: sai e volta ao recorte 1 vez(es)",
+    "linha 558 sentido 0 SAT: padrões ['558_0_729', '558_0_8227'] têm a mesma lista de partidas (38 viagens) - partidas contadas uma vez no grafo",
+    "linha 558 sentido 0 SUN: padrões ['558_0_729', '558_0_8227'] têm a mesma lista de partidas (28 viagens) - partidas contadas uma vez no grafo",
+    "linha 558 sentido 0 WD: padrões ['558_0_729', '558_0_8227'] têm a mesma lista de partidas (50 viagens) - partidas contadas uma vez no grafo",
+    "linha 558 sentido 1 SAT: padrões ['558_1_387', '558_1_8228'] têm a mesma lista de partidas (38 viagens) - partidas contadas uma vez no grafo",
+    "linha 558 sentido 1 SUN: padrões ['558_1_387', '558_1_8228'] têm a mesma lista de partidas (28 viagens) - partidas contadas uma vez no grafo",
+    "linha 558 sentido 1 WD: padrões ['558_1_387', '558_1_8228'] têm a mesma lista de partidas (50 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 0 SAT: padrões ['563_0_593', '563_0_8229'] têm a mesma lista de partidas (36 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 0 SUN: padrões ['563_0_593', '563_0_8229'] têm a mesma lista de partidas (27 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 0 WD: padrões ['563_0_593', '563_0_8229'] têm a mesma lista de partidas (46 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 1 SAT: padrões ['563_1_544', '563_1_8230'] têm a mesma lista de partidas (36 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 1 SUN: padrões ['563_1_544', '563_1_8230'] têm a mesma lista de partidas (27 viagens) - partidas contadas uma vez no grafo",
+    "linha 563 sentido 1 WD: padrões ['563_1_544', '563_1_8230'] têm a mesma lista de partidas (46 viagens) - partidas contadas uma vez no grafo"
+  ],
+  "data_calculo": "2026-11-17",
+  "cenarios_exportados": {
+    "UTIL_MANHA": {
+      "service_id": "WD",
+      "tp_dia": "UTIL",
+      "inicio": "06:00",
+      "fim": "09:00",
+      "nome": "Dia útil - pico da manhã",
+      "descricao": "Dia útil, 06h00-09h00"
+    },
+    "UTIL_TARDE": {
+      "service_id": "WD",
+      "tp_dia": "UTIL",
+      "inicio": "17:00",
+      "fim": "20:00",
+      "nome": "Dia útil - pico da tarde",
+      "descricao": "Dia útil, 17h00-20h00"
+    },
+    "UTIL_NOITE": {
+      "service_id": "WD",
+      "tp_dia": "UTIL",
+      "inicio": "20:00",
+      "fim": "24:00",
+      "nome": "Dia útil - noite",
+      "descricao": "Dia útil, 20h00-24h00"
+    },
+    "SABADO_MANHA": {
+      "service_id": "SAT",
+      "tp_dia": "SABADO",
+      "inicio": "08:00",
+      "fim": "12:00",
+      "nome": "Sábado - manhã",
+      "descricao": "Sábado, 08h00-12h00"
+    },
+    "DOMINGO_MANHA": {
+      "service_id": "SUN",
+      "tp_dia": "DOMINGO",
+      "inicio": "08:00",
+      "fim": "11:00",
+      "nome": "Domingo - manhã",
+      "descricao": "Domingo, 08h00-11h00"
+    }
+  },
+  "criterio_ordenacao": "tempo",
+  "pontos_selecionaveis": [
+    "13211",
+    "13466",
+    "407",
+    "405",
+    "1443",
+    "401",
+    "1446",
+    "398",
+    "1449",
+    "393",
+    "1454",
+    "33608",
+    "21969",
+    "32960",
+    "2201",
+    "21657"
+  ],
+  "status_por_cenario": {
+    "UTIL_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "ALTERNATIVAS_DISTINTAS": 18,
+      "TRAJETO_UNICO": 65,
+      "SEM_TRAJETO": 68
+    },
+    "UTIL_TARDE": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "ALTERNATIVAS_DISTINTAS": 18,
+      "TRAJETO_UNICO": 65,
+      "SEM_TRAJETO": 68
+    },
+    "UTIL_NOITE": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "ALTERNATIVAS_DISTINTAS": 18,
+      "TRAJETO_UNICO": 65,
+      "SEM_TRAJETO": 68
+    },
+    "SABADO_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "ALTERNATIVAS_DISTINTAS": 18,
+      "TRAJETO_UNICO": 65,
+      "SEM_TRAJETO": 68
+    },
+    "DOMINGO_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "ALTERNATIVAS_DISTINTAS": 19,
+      "TRAJETO_UNICO": 64,
+      "SEM_TRAJETO": 68
+    }
+  },
+  "status_banco_por_cenario": {
+    "UTIL_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "COM_ALTERNATIVAS": 83,
+      "SEM_TRAJETO": 68
+    },
+    "UTIL_TARDE": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "COM_ALTERNATIVAS": 83,
+      "SEM_TRAJETO": 68
+    },
+    "UTIL_NOITE": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "COM_ALTERNATIVAS": 83,
+      "SEM_TRAJETO": 68
+    },
+    "SABADO_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "COM_ALTERNATIVAS": 83,
+      "SEM_TRAJETO": 68
+    },
+    "DOMINGO_MANHA": {
+      "SEM_TRAJETO_RAZOAVEL": 89,
+      "COM_ALTERNATIVAS": 83,
+      "SEM_TRAJETO": 68
+    }
+  },
+  "fontes_banco": {
+    "paradas_e_linhas": "GTFS ARTESP - transporte intermunicipal",
+    "pares": "Cálculo Pharos - Floyd-Warshall (módulo Dynamic Programming)"
+  },
+  "conversoes": {
+    "modelo": "database/02_ddl.sql do repositório da equipe",
+    "chaves": "id_* (IDENTITY) não exportados; FKs pela chave natural: cd_cenario, cd_parada_gtfs, cd_linha, nm_fonte",
+    "status": {
+      "ALTERNATIVAS_DISTINTAS": "COM_ALTERNATIVAS",
+      "TRAJETO_UNICO": "COM_ALTERNATIVAS",
+      "SEM_TRAJETO": "SEM_TRAJETO",
+      "SEM_TRAJETO_RAZOAVEL": "SEM_TRAJETO_RAZOAVEL"
+    },
+    "tempo": "segundos / 60, 1 casa, meio para cima -> NUMBER(5,1)",
+    "distancia": "metros / 1000, 2 casas, meio para cima -> NUMBER(6,2)",
+    "etapa_linha": "cd_linha = linha do itinerário escolhido; linhas com o mesmo itinerário no trecho ficam em complementar/etapa_detalhe.csv",
+    "municipio": "do nome da parada no GTFS; senão config.MUNICIPIO_CONFERIDO; senão 'NÃO INFORMADO'",
+    "municipio_origem": {
+      "nao_informado": 6,
+      "nome_gtfs": 13,
+      "conferido": 6
+    }
+  },
+  "parametros": {
+    "MAX_ALTERNATIVAS": 3,
+    "MAX_BALDEACOES": 2,
+    "MAX_INDICE_DESVIO": 3.0,
+    "LIMIAR_SOBREPOSICAO": 0.8,
+    "RAIO_SOBREPOSICAO_M": 30.0
+  },
+  "aviso_uso": "Tempos são programados/interpolados pela ARTESP (GTFS 2026), não tempo real. Esperas são estimativas (headway/2). Baldeações só na mesma parada."
+}

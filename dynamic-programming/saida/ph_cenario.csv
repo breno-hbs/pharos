@@ -1,0 +1,6 @@
+cd_cenario,nm_cenario,tp_dia,nr_hora_inicio,nr_hora_fim
+UTIL_MANHA,Dia útil - pico da manhã,UTIL,6,9
+UTIL_TARDE,Dia útil - pico da tarde,UTIL,17,20
+UTIL_NOITE,Dia útil - noite,UTIL,20,24
+SABADO_MANHA,Sábado - manhã,SABADO,8,12
+DOMINGO_MANHA,Domingo - manhã,DOMINGO,8,11

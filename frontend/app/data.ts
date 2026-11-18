@@ -1,31 +1,24 @@
-export const stops = [
-  { id: "jardim", name: "Praça do Jardim Comercial", short: "Jd. Comercial" },
-  { id: "metro", name: "Metrô Capão Redondo", short: "Metrô Capão Redondo" },
-] as const;
+/** Paradas vêm da API (GET /paradas?selecionavel=true). */
+export type Stop = { id: string; name: string; short: string; terminal: boolean };
+export const findStop = (stops: readonly Stop[], id: string): Stop => stops.find((stop) => stop.id === id) ?? { id, name: "Parada", short: "Parada", terminal: false };
 
-export type StopId = (typeof stops)[number]["id"];
-export const getStop = (id: StopId) => stops.find((stop) => stop.id === id)!;
-
+/** `criterio` é o valor do parâmetro `ordenar` da API. A API não calcula caminhada, então a preferência é a distância percorrida. */
 export const preferences = [
-  { id: "duration", name: "Menor duração", icon: "timer" },
-  { id: "walking", name: "Menos caminhada", icon: "walk" },
-  { id: "transfers", name: "Menos baldeações", icon: "repeat" },
+  { id: "duration", name: "Menor duração", icon: "timer", criterio: "TEMPO" },
+  { id: "distance", name: "Menor distância", icon: "route", criterio: "DISTANCIA" },
+  { id: "transfers", name: "Menos baldeações", icon: "repeat", criterio: "BALDEACOES" },
 ] as const;
 
 export type Preference = (typeof preferences)[number]["id"];
 export type Trip = {
-  origin: StopId;
-  destination: StopId;
+  origin: string;
+  destination: string;
   time: string;
   preference: Preference;
 };
 
-export const defaultTrip: Trip = {
-  origin: "jardim",
-  destination: "metro",
-  time: "18:10",
-  preference: "duration",
-};
+/** O banco de exemplo tem trajetos calculados para o pico da manhã de dia útil (6h às 9h). */
+export const defaultTime = "07:30";
 
 export const categories = [
   { id: "theft", label: "Furto", icon: "hand" },
@@ -62,19 +55,25 @@ export const observations = {
 
 export const participationBand = (count: number) => count >= 15 ? "high" : count >= 5 ? "medium" : "low";
 
-export const routes = [
-  { id: "a", caption: "Menor duração", via: "Estrada de Itapecerica", short: "Estr. de Itapecerica", minutes: 32, walking: 8, transfers: 0, lines: ["675K-10"], warnings: ["theft", "dark", "other"] },
-  { id: "b", caption: "Menos caminhada", via: "Av. Ellis Maas", short: "Av. Ellis Maas", minutes: 39, walking: 5, transfers: 1, lines: ["6016-10", "675K-10"], warnings: ["dark", "theft"] },
-  { id: "c", caption: "Outra opção", via: "Av. Comendador Sant’Anna", short: "Av. Com. Sant’Anna", minutes: 44, walking: 12, transfers: 0, lines: ["6820-10"], warnings: ["theft"] },
-] as const;
-
-export type Route = (typeof routes)[number];
+export type Route = {
+  id: "a" | "b" | "c";
+  idAlternativa: number;
+  /** Estritamente menos baldeações que alguma outra alternativa. */
+  fewestTransfers: boolean;
+  caption: string;
+  via: string;
+  short: string;
+  minutes: number;
+  distanceKm: number;
+  transfers: number;
+  lines: string[];
+  steps: { nrSequencia: number; cdLinha: string; nmParadaEmbarque: string; nmParadaDesembarque: string }[];
+  indicators: { idIndicador: number; cdTipo: string; nmTipo: string; nrAno: number; tpFaixaHoraria: string; nrRaioM: number; qtOcorrencias: number; nmFonte: string; simulado: boolean }[];
+  occurrences: number;
+  /** Relatos comunitários simulados (a API não tem relatos). */
+  warnings: readonly Category[];
+};
 export type RouteId = Route["id"];
-
-export function orderedRoutes(preference: Preference) {
-  const metric = preference === "duration" ? "minutes" : preference;
-  return [...routes].sort((a, b) => a[metric] - b[metric] || a.minutes - b.minutes);
-}
 
 export function offsetTime(time: string, offset: number) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -82,21 +81,22 @@ export function offsetTime(time: string, offset: number) {
   return [Math.floor(total / 60), total % 60].map((value) => String(value).padStart(2, "0")).join(":");
 }
 
-export function tripFromParams(params: Pick<URLSearchParams, "get">): Trip {
-  const origin = params.get("origem") === "metro" ? "metro" : "jardim";
-  const preference = params.get("preferencia");
+/** Pares origem→destino com alternativas no banco de exemplo (ids das paradas). */
+const DEMO_PAIRS: readonly (readonly [string, string])[] = [["2", "1"], ["1", "3"], ["4", "5"], ["4", "1"], ["6", "7"]];
+
+export function tripFromParams(params: Pick<URLSearchParams, "get">, stops: readonly Stop[]): Trip {
+  const known = (id: string | null) => stops.find((stop) => stop.id === id)?.id;
+  // Padrão: par com trajeto calculado no banco de exemplo (03_dml.sql, cenário UTIL_MANHA).
+  const demo = DEMO_PAIRS.find(([from, to]) => known(from) && known(to));
+  const origin = known(params.get("origem")) ?? demo?.[0] ?? stops[0]?.id ?? "";
+  const destination = known(params.get("destino")) ?? (!params.get("origem") ? demo?.[1] : undefined) ?? stops.find((stop) => stop.id !== origin)?.id ?? "";
   const time = params.get("hora");
   return {
     origin,
-    destination: origin === "metro" ? "jardim" : "metro",
-    time: time && /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : defaultTrip.time,
-    preference: preferences.find(({ id }) => id === preference)?.id ?? defaultTrip.preference,
+    destination: destination === origin ? stops.find((stop) => stop.id !== origin)?.id ?? "" : destination,
+    time: time && /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : defaultTime,
+    preference: preferences.find(({ id }) => id === params.get("preferencia"))?.id ?? "duration",
   };
-}
-
-
-export function hasMockConnection(trip: Trip) {
-  return trip.origin === "jardim" && trip.destination === "metro";
 }
 
 export type PendingReport = {

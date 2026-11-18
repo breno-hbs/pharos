@@ -14,7 +14,7 @@
 
 **Problema, em uma frase:** Usuários do transporte público têm dificuldade para comparar trajetos considerando, além do tempo e das baldeações, informações históricas de ocorrências criminais nas áreas percorridas.
 
-**Como funciona:** O usuário seleciona uma origem e um destino dentro da região piloto. O Pharos mostra até três alternativas de ônibus, calculadas antes a partir dos horários programados da ARTESP, e permite compará-las por tempo estimado, distância percorrida, quantidade de baldeações (sempre na mesma parada) e registros históricos agregados de ocorrências criminais, quando os dados permitirem. A distância de caminhada não é calculada; no protótipo, as etapas a pé são apenas simuladas na interface. A plataforma apresenta as fontes e limitações dessas informações, permitindo que o usuário escolha seu trajeto sem prometer que alguma alternativa seja segura.
+**Como funciona:** O usuário seleciona uma origem e um destino dentro da região piloto. O Pharos mostra as alternativas de ônibus (até três por par), calculadas antes a partir dos horários programados da ARTESP, e permite compará-las por tempo estimado, distância percorrida, quantidade de baldeações (sempre na mesma parada) e registros históricos agregados de ocorrências criminais, quando os dados permitirem. A distância de caminhada não é calculada e o front-end implementado não exibe etapas a pé. A plataforma apresenta as fontes e limitações dessas informações, permitindo que o usuário escolha seu trajeto sem prometer que alguma alternativa seja segura.
 
 **O que cada parte faz:**
 
@@ -42,14 +42,13 @@
 
 ## Estado do projeto
 
-Projeto acadêmico da Global Solution FIAP 2026.2, em fase final de integração e entrega. A validação técnica do território e dos trajetos alternativos foi concluída em 06/11/2026, com o GTFS da ARTESP.
+Projeto acadêmico da Global Solution FIAP 2026.2, em fase final de entrega (prazo: 19/11/2026). A validação técnica do território e dos trajetos alternativos foi concluída em 06/11/2026, com o GTFS da ARTESP.
 
-**Pendências atuais:**
-- Validar a granularidade e a qualidade dos dados da SSP-SP.
-- Confirmar as conexões de transporte do MVP.
-- Consolidar a arquitetura e os contratos de integração.
+**O que está integrado:**
+- **API Java** publicada no Render (https://pharos-api-kaxr.onrender.com), conectada ao Oracle da FIAP. Documentação em [`backend/java`](backend/java).
+- **Front-end** (`frontend/`) consumindo a API: paradas, trajetos e registro anônimo de consultas. Como rodar e quais chamadas usa: [`frontend/README.md`](frontend/README.md).
 
-**Prazo de entrega:** 19/11/2026.
+**Simulado de propósito:** relatos comunitários, pins, confirmações e o mapa ilustrativo (a API e o banco de exemplo não têm relatos nem coordenadas). O banco de exemplo só tem trajetos calculados para o pico da manhã de dia útil.
 
 ## Como contribuir
 

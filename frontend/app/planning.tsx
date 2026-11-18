@@ -30,7 +30,7 @@ export function Planning({ trip, setTrip, onBack, onSubmit }: {
               </span>
             </label>
           ))}
-          <button type="button" className="swap-button" aria-label="Inverter origem e destino" onClick={() => setTrip({ ...trip, origin: trip.destination, destination: trip.origin })}>
+          <button type="button" className="swap-button" data-reversed={trip.origin === "metro"} aria-label="Inverter origem e destino" onClick={() => setTrip({ ...trip, origin: trip.destination, destination: trip.origin })}>
             <Icon name="swap" />
           </button>
         </div>

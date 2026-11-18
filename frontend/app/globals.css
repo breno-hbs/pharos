@@ -395,3 +395,28 @@ select option { color: var(--text); background: var(--panel); }
   from { opacity: .55; }
   to { opacity: 1; }
 }
+
+.swap-button[data-reversed="true"] .icon { rotate: 180deg; }
+.map-pin[data-filtered="true"] { visibility: hidden; opacity: 0; scale: .82; pointer-events: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .swap-button .icon { transition: rotate 220ms cubic-bezier(.2, .75, .25, 1); }
+  .map-art { transition-duration: 220ms; }
+  .map-pin[data-filtered="true"] { transition: opacity 160ms ease, scale 160ms ease, visibility 0s 160ms; }
+  .pin-count, .participation-summary > span { animation: count-change 200ms ease-out; }
+  .history-bars i { transform-origin: bottom; animation: bar-enter 260ms ease-out; }
+  .timeline li { animation: panel-enter 180ms ease-out both; }
+  .timeline li:nth-child(2) { animation-delay: 35ms; }
+  .timeline li:nth-child(3) { animation-delay: 70ms; }
+  .timeline li:nth-child(n + 4) { animation-delay: 105ms; }
+}
+
+@keyframes count-change {
+  from { opacity: .65; scale: .85; }
+  to { opacity: 1; scale: 1; }
+}
+
+@keyframes bar-enter {
+  from { scale: 1 .4; }
+  to { scale: 1 1; }
+}

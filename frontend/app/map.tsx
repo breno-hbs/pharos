@@ -115,17 +115,18 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
         </button>
       )}
       {categories.map(({ id, label, icon }) => {
-        if (!filters.includes(id)) return null;
         if ((mode === "detail" || mode === "report") && available && !(visibleRoute.warnings as readonly Category[]).includes(id)) return null;
         let coordinates = art.pins[id];
         if (!coordinates && expanded && id !== "theft") coordinates = id === "dark" ? [235, 330] : [288, 283];
         if (!coordinates) return null;
         const count = observations[id].count + Number(participation[id] === "confirmed");
-        const marker = <><Icon name={icon} /><small>{count}</small></>;
+        const marker = <><Icon name={icon} /><small key={count} className="pin-count">{count}</small></>;
         const outsideRoute = showAlternatives && !(visibleRoute.warnings as readonly Category[]).includes(id);
         const props = {
           className: `map-pin ${participationBand(count)}${outsideRoute ? " outside-route" : ""}`,
           style: position(coordinates, art.size),
+          "data-filtered": !filters.includes(id),
+          inert: !filters.includes(id),
         };
         return onPin
           ? <button key={id} type="button" {...props} aria-label={`${label}, ${count} confirmações`} onClick={() => onPin(id)}>{marker}</button>

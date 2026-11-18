@@ -40,7 +40,7 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
         <small>{observation.date} · autoria preservada</small>
       </div>
       <div className="participation-summary">
-        <span className={band}>{count}</span>
+        <span key={count} className={band}>{count}</span>
         <div><strong>confirmações da comunidade</strong><p>Faixa {bandLabel}{confirmed ? " · inclui a sua confirmação" : ""}</p></div>
       </div>
       <p className="fine-print">{contested ? "1 contestação" : "0 contestações"} · relato comunitário simulado</p>

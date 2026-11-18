@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Participation, type PendingReport, type Preference, type Route, type Trip } from "./data";
 import { BackButton, Icon, Legend, SectionTitle } from "./ui";
 
@@ -14,6 +15,33 @@ export function Comparison({ trip, route, onEdit, onSort, onSelect, onDetails }:
   onSelect: (id: Route["id"]) => void;
   onDetails: () => void;
 }) {
+  const optionsRef = useRef<HTMLFieldSetElement>(null);
+  const previousPositions = useRef(new Map<Element, number>());
+  const reorderAnimations = useRef(new WeakMap<Element, Animation>());
+
+  function sort(preference: Preference) {
+    const cards = optionsRef.current?.children;
+    if (cards && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      previousPositions.current = new Map(Array.from(cards, (card) => [card, card.getBoundingClientRect().top]));
+    }
+    onSort(preference);
+  }
+
+  useLayoutEffect(() => {
+    for (const [card, previousTop] of previousPositions.current) {
+      reorderAnimations.current.get(card)?.cancel();
+      const distance = previousTop - card.getBoundingClientRect().top;
+      if (distance !== 0) {
+        const animation = card.animate(
+          [{ transform: `translateY(${distance}px)` }, { transform: "translateY(0)" }],
+          { duration: 240, easing: "cubic-bezier(.2, .75, .25, 1)" },
+        );
+        reorderAnimations.current.set(card, animation);
+      }
+    }
+    previousPositions.current.clear();
+  }, [trip.preference]);
+
   return (
     <div className="panel-content comparison">
       <BackButton onClick={onEdit}>Voltar ao planejamento</BackButton>
@@ -25,12 +53,12 @@ export function Comparison({ trip, route, onEdit, onSort, onSelect, onDetails }:
       </button>
       <div className="comparison-meta">
         <span>Hoje · {trip.time}</span>
-        <select aria-label="Ordenar trajetos" value={trip.preference} onChange={(event) => onSort(event.target.value as Preference)}>
+        <select aria-label="Ordenar trajetos" value={trip.preference} onChange={(event) => sort(event.target.value as Preference)}>
           {preferences.map(({ id, name }) => <option key={id} value={id}>{name}</option>)}
         </select>
       </div>
       <p className="comparison-help">Ícones = relatos por categoria. Ordem: confirmações.</p>
-      <fieldset className="route-options" aria-label="Escolha um trajeto">
+      <fieldset ref={optionsRef} className="route-options" aria-label="Escolha um trajeto">
         {orderedRoutes(trip.preference).map((item) => {
           const selected = route.id === item.id;
           return (

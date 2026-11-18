@@ -1,0 +1,208 @@
+import { useLayoutEffect, useRef } from "react";
+import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Participation, type PendingReport, type Preference, type Route, type Trip } from "./data";
+import { BackButton, Icon, Legend, SectionTitle } from "./ui";
+
+function warningCount(route: Route) {
+  const count = route.warnings.length;
+  return count === 1 ? "1 aviso próximo" : `${count} avisos próximos`;
+}
+
+export function Comparison({ trip, route, onEdit, onSort, onSelect, onDetails }: {
+  trip: Trip;
+  route: Route;
+  onEdit: () => void;
+  onSort: (preference: Preference) => void;
+  onSelect: (id: Route["id"]) => void;
+  onDetails: () => void;
+}) {
+  const optionsRef = useRef<HTMLFieldSetElement>(null);
+  const previousPositions = useRef(new Map<Element, number>());
+  const reorderAnimations = useRef(new WeakMap<Element, Animation>());
+
+  function sort(preference: Preference) {
+    const cards = optionsRef.current?.children;
+    if (cards && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      previousPositions.current = new Map(Array.from(cards, (card) => [card, card.getBoundingClientRect().top]));
+    }
+    onSort(preference);
+  }
+
+  useLayoutEffect(() => {
+    for (const [card, previousTop] of previousPositions.current) {
+      reorderAnimations.current.get(card)?.cancel();
+      const distance = previousTop - card.getBoundingClientRect().top;
+      if (distance !== 0) {
+        const animation = card.animate(
+          [{ transform: `translateY(${distance}px)` }, { transform: "translateY(0)" }],
+          { duration: 240, easing: "cubic-bezier(.2, .75, .25, 1)" },
+        );
+        reorderAnimations.current.set(card, animation);
+      }
+    }
+    previousPositions.current.clear();
+  }, [trip.preference]);
+
+  return (
+    <div className="panel-content comparison">
+      <BackButton onClick={onEdit}>Voltar ao planejamento</BackButton>
+      <SectionTitle step="02 / COMPARAR">Três formas de chegar.</SectionTitle>
+      <button type="button" className="trip-summary" onClick={onEdit} aria-label="Editar origem e destino">
+        <Icon name="swap" />
+        <span>{getStop(trip.origin).name}<strong>{getStop(trip.destination).name}</strong></span>
+        <Icon name="pencil" />
+      </button>
+      <div className="comparison-meta">
+        <span>Hoje · {trip.time}</span>
+        <select aria-label="Ordenar trajetos" value={trip.preference} onChange={(event) => sort(event.target.value as Preference)}>
+          {preferences.map(({ id, name }) => <option key={id} value={id}>{name}</option>)}
+        </select>
+      </div>
+      <p className="comparison-help">Ícones = relatos por categoria. Ordem: confirmações.</p>
+      <fieldset ref={optionsRef} className="route-options" aria-label="Escolha um trajeto">
+        {orderedRoutes(trip.preference).map((item) => {
+          const selected = route.id === item.id;
+          return (
+            <label key={item.id} className={`route-card route-option-${item.id}`} data-selected={selected}>
+              <input type="radio" name="rota" checked={selected} onChange={() => onSelect(item.id)} />
+              <span className="route-card-top">
+                <span className="route-stamp">{item.id.toUpperCase()}</span><strong>{item.caption}</strong>
+                <span className="route-warnings">
+                  {categories.filter(({ id }) => (item.warnings as readonly Category[]).includes(id)).sort((a, b) => observations[b.id].count - observations[a.id].count).map(({ id, label, icon }) => (
+                    <span key={id} title={label} aria-label={`1 relato: ${label}`} data-category={id}><Icon name={icon} tinted />1</span>
+                  ))}
+                </span>
+                <span className="route-radio" aria-hidden="true">{selected ? "✓" : ""}</span>
+              </span>
+              {item.id === "a" && <span className="route-extra">Também: menos baldeações</span>}
+              <span className="route-card-main">
+                <span className="route-duration">{item.minutes} min</span>
+                <span><strong>Via {item.via}</strong><small>{item.walking} min a pé · {item.transfers} {item.transfers === 1 ? "baldeação" : "baldeações"}</small></span>
+              </span>
+              <span className="route-card-bottom"><span><Icon name="bus" /> Ônibus {item.lines.join(" + ")}</span><span>{warningCount(item)}</span></span>
+              {selected && <span className="route-card-selected mobile-only">Selecionada · {trip.time} → {offsetTime(trip.time, item.minutes)} <span aria-hidden="true">→</span></span>}
+            </label>
+          );
+        })}
+      </fieldset>
+      <button type="button" className="button primary" onClick={onDetails}><Icon name="arrow" />Ver detalhes da rota {route.id.toUpperCase()}</button>
+      <Legend />
+      <p className="fine-print">Tempos, linhas e avisos simulados. A quantidade de avisos não é uma medida de risco nem uma recomendação de segurança.</p>
+    </div>
+  );
+}
+
+export function HistoryCard({ className = "" }: { className?: string }) {
+  return (
+    <aside className={`history-card ${className}`}>
+      <div className="history-title"><h2>Contexto histórico</h2><span>EXEMPLO SIMULADO</span></div>
+      <p>12 registros fictícios agregados no setor piloto do Capão Redondo. Sem associação a pessoas, endereços ou previsões.</p>
+      <div className="history-bars" aria-label="Registros simulados: julho 3, agosto 5, setembro 4">
+        {[["Jul", 3], ["Ago", 5], ["Set", 4]].map(([month, count]) => (
+          <div key={month}><span>{count}</span><i style={{ height: Number(count) * 6 }} /><span>{month}</span></div>
+        ))}
+      </div>
+      <p className="history-period">Período ilustrativo: jul.–set. 2026. Todos os valores acima são simulados.</p>
+      <p>Fonte oficial de referência: SSP-SP, estatísticas públicas. Os valores deste exemplo NÃO foram extraídos dessa fonte e não descrevem ocorrências reais.</p>
+    </aside>
+  );
+}
+
+export function Details({ trip, route, participation, report, onBack, onPin, onReport }: {
+  trip: Trip;
+  route: Route;
+  participation: Participation;
+  report?: PendingReport;
+  onBack: () => void;
+  onPin: (category: Category) => void;
+  onReport: () => void;
+}) {
+  const walkTo = Math.floor(route.walking / 2);
+  const walkFrom = route.walking - walkTo;
+  const busTime = route.minutes - route.walking;
+  const origin = getStop(trip.origin);
+  const destination = getStop(trip.destination);
+  const firstBusTime = route.transfers ? Math.floor((busTime - 3) / 2) : busTime;
+  const steps: { title: string; path: string; duration: string; offset: number; icon: string; warning?: Category }[] = [
+    { title: "Caminhe até o ponto", path: `${origin.name} → ${route.short}`, duration: `${walkTo} min · ${walkTo * 70} m`, offset: 0, icon: "walk", warning: route.warnings[0] },
+    {
+      title: `Ônibus ${route.lines[0]}`,
+      path: `Ponto ${route.short} → conexão Capão Redondo`,
+      duration: `${firstBusTime} min · ${route.transfers ? "até a conexão" : "sentido metrô"}`,
+      offset: walkTo, icon: "bus", warning: route.warnings[1],
+    },
+  ];
+  if (route.transfers) {
+    const transferOffset = walkTo + firstBusTime;
+    steps.push(
+      { title: "Baldeação na mesma parada", path: "Conexão Capão Redondo", duration: "3 min de espera", offset: transferOffset, icon: "repeat" },
+      {
+        title: `Ônibus ${route.lines[1]}`, path: "Conexão Capão Redondo → desembarque no metrô",
+        duration: `${busTime - firstBusTime - 3} min · sentido metrô`, offset: transferOffset + 3, icon: "bus",
+      },
+    );
+  }
+  steps.push({
+    title: "Caminhe até a estação", path: `Desembarque → ${destination.name}`,
+    duration: `${walkFrom} min · ${walkFrom * 65} m`, offset: walkTo + busTime,
+    icon: "walk", warning: route.warnings[2],
+  });
+  const letter = route.id.toUpperCase();
+  return (
+    <div className="panel-content details">
+      <BackButton onClick={onBack}>Voltar à comparação</BackButton>
+      <SectionTitle step={`03 / DETALHES · ROTA ${letter}`}>Seu trajeto, por etapas.</SectionTitle>
+      <div className="detail-summary">
+        <div><span className="route-duration">{route.minutes} min</span><span><strong>{trip.time} → {offsetTime(trip.time, route.minutes)}</strong><small>Via {route.short}</small></span></div>
+        <ul><li>{route.walking} min a pé</li><li>{route.transfers} {route.transfers === 1 ? "baldeação" : "baldeações"}</li><li>{warningCount(route)}</li></ul>
+        <p>ITINERÁRIO E TEMPOS SIMULADOS</p>
+      </div>
+      <ol className="timeline">
+        {steps.map((step) => {
+          const category = categories.find(({ id }) => id === step.warning);
+          return (
+            <li key={step.title}>
+              <span className="step-icon"><Icon name={step.icon} /></span>
+              <div>
+                <div className="timeline-title"><h2>{step.title}</h2><time>{offsetTime(trip.time, step.offset)}</time></div>
+                <p>{step.path}</p><p className="step-duration">{step.duration}</p>
+                {category && (
+                  <button type="button" className="step-warning" data-category={category.id} onClick={() => onPin(category.id)}>
+                    <Icon name={category.icon} tinted />{category.label} · 1 aviso próximo · {observations[category.id].count + Number(participation[category.id] === "confirmed")} confirmações
+                  </button>
+                )}
+              </div>
+            </li>
+          );
+        })}
+        <li className="arrival">
+          <Icon name="flag" />
+          <div><h2>{destination.name}</h2><p>{offsetTime(trip.time, route.minutes)} · chegada ilustrativa</p></div>
+        </li>
+      </ol>
+      <HistoryCard className="mobile-only" />
+      <section className="route-voices" aria-label="Vozes do percurso">
+        <div className="voices-title"><h2>Vozes do percurso</h2><span>Moderados</span></div>
+        {[...route.warnings].sort((a, b) => observations[b].count - observations[a].count).slice(0, 2).reverse().map((id) => {
+          const category = categories.find((item) => item.id === id)!;
+          const observation = observations[id];
+          return (
+            <button type="button" key={id} className="voice-card" data-category={id} onClick={() => onPin(id)}>
+              <span><Icon name={category.icon} tinted /><strong>{category.label}</strong> <small>RELATO SIMULADO</small></span>
+              <p>{observation.description}</p><small>{observation.date} · {observation.count + Number(participation[id] === "confirmed")} confirmações</small>
+            </button>
+          );
+        })}
+      </section>
+      {report && (
+        <div className="feedback" role="status">
+          <Icon name="check" tinted /><div><strong>Observação enviada</strong>
+            <p>Recibo <b>{report.receipt}</b> · {report.status.toLowerCase()} de moderação. Envio simulado.</p>
+          </div>
+        </div>
+      )}
+      <button type="button" className="button primary" onClick={onReport}><Icon name="plus" tinted />Adicionar observação</button>
+      <div className="mobile-only"><Legend /></div>
+      <p className="fine-print">Informações para apoiar decisões, não para prever crimes ou garantir segurança. Confira condições e serviços por outros meios.</p>
+    </div>
+  );
+}

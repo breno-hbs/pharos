@@ -10,7 +10,7 @@ O briefing da GS e o professor da disciplina pedem que os prompts usados com IA 
   - Briefing oficial `GS CitizenTech - 2ES Fev - FIAP 2026.pdf`.
   - Critérios de correção do professor de Dynamic Programming.
 
-**[PREENCHER]** Se outros prompts foram usados, em outras conversas ou ferramentas, acrescente-os ao final. Isso inclui a preparação do prompt 1, que veio com o título "Prompt completo para você usar na IA", e a tarefa 1.6.
+**Outras ferramentas.** Em 17/11/2026, a equipe informou que, até onde sabe, não usou outras ferramentas de IA no módulo de DP. Há dois indícios de uso em textos de apoio: o prompt 1 chegou pronto, com o título "Prompt completo para você usar na IA", e o link do repositório colado na Ficha trazia o parâmetro `utm_source=chatgpt.com`, que o ChatGPT acrescenta aos links. Por transparência, registramos que esses dois textos podem ter sido preparados com ajuda do ChatGPT. As conversas originais não foram guardadas.
 
 ---
 
@@ -413,12 +413,45 @@ O briefing da GS e o professor da disciplina pedem que os prompts usados com IA 
 
 ---
 
+## Prompts 11 a 16 · 17/11/2026
+
+> mensagem pro breno explicando
+
+**O que a IA produziu:** rascunho de mensagem ao Breno sobre o repositório privado, o PR #13, o PR do DP e a Ficha desatualizada. Antes de sugerir tornar o repositório público, conferiu que não havia senha nem e-mail nos arquivos.
+
+> ta, oq eu preciso fazer?
+
+**O que a IA produziu:** lista das tarefas do Pedro por prazo (hoje, 18/11, entrega até 19/11 e depois da GS).
+
+> me ajude a fazer o 3, devagar
+
+**Anexos seguintes:** o caminho da pasta descompactada e prints do PowerShell.
+
+**O que a IA produziu:** passo a passo para rodar os testes e o menu no Windows. Antes, rodou o ZIP em Python 3.14, a mesma versão do computador do Pedro.
+
+**Anexo:** prints do grupo da equipe pedindo ao Pedro o PR do DP e a Ficha corrigida no README da raiz, com os quatro trechos a corrigir.
+
+**O que a IA produziu:** a pasta `dynamic-programming/` com o módulo e os textos novos da Ficha, preparados sem commit para aprovação.
+
+> pode
+
+**O que a IA produziu:** dois commits no nome do Pedro, com a IA como coautora, e o PR #14 para o `main`, com o Breno como revisor.
+
+> 1. acho que nao
+> 2. sim, todos revisaram tudo
+
+**O que a IA produziu:** o aviso sobre outras ferramentas (no início deste arquivo) e a tabela de revisão humana abaixo.
+
+---
+
 ## Revisão humana
 
 | Integrante | O que revisou ou conferiu | Data |
 |---|---|---|
-| Pedro Henrique dos Santos | **[PREENCHER]** Ex.: rodou `python -m unittest discover -s tests -v` (73 OK) e o menu no próprio computador | |
-| Pedro Cunha Coutinho | **[PREENCHER]** | |
-| Breno Henrique Bortoloti Santos | **[PREENCHER]** | |
-| Nicolas Tetsuo Kimura | **[PREENCHER]** | |
-| Lucas Santana Silva | **[PREENCHER]** | |
+| Pedro Henrique dos Santos | Rodou os 73 testes (OK, 9,8 s) e o menu no próprio computador (Windows, Python 3.14.5). A consulta 13211 → 407 conferiu com o relatório (551: 29,4 min; 193: 44,1 min), e a entrada vazia foi recusada sem travar o programa. Revisou o código, o README, o relatório e os resultados | 17/11/2026 |
+| Pedro Cunha Coutinho | Revisou o código, o README, o relatório e os resultados | Até 17/11/2026 |
+| Breno Henrique Bortoloti Santos | Revisou o código, o README, o relatório e os resultados | Até 17/11/2026 |
+| Nicolas Tetsuo Kimura | Revisou o código, o README, o relatório e os resultados | Até 17/11/2026 |
+| Lucas Santana Silva | Revisou o código, o README, o relatório e os resultados | Até 17/11/2026 |
+
+As revisões dos outros quatro integrantes foram informadas por Pedro Henrique dos Santos em 17/11/2026.

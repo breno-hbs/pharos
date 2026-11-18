@@ -19,7 +19,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 | Tela | Chamada |
 | --- | --- |
-| Planejamento (origem e destino) | `GET /paradas?selecionavel=true` |
+| Planejamento (origem e destino) | `GET /paradas?selecionavel=S` |
 | Comparação e detalhes | `GET /trajetos?origem=&destino=&dia=UTIL&hora=&ordenar=` (`ordenar`: TEMPO, DISTANCIA ou BALDEACOES, vindo da preferência escolhida) |
 | Registro anônimo da consulta | `POST /consultas` ao abrir os trajetos e `PUT /consultas/{id}` com a alternativa aberta nos detalhes (`flTeste=S`) |
 

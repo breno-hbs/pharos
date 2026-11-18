@@ -56,7 +56,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const shorten = (name: string) => name.length > 30 ? `${name.slice(0, 29).trimEnd()}…` : name;
 
 export async function fetchStops(): Promise<Stop[]> {
-  const paradas = await request<Parada[]>("/paradas?selecionavel=true");
+  const paradas = await request<Parada[]>("/paradas?selecionavel=S");
   return paradas.map((parada) => ({ id: String(parada.idParada), name: parada.nmParada, short: shorten(parada.nmParada), terminal: parada.flTerminal === "S" }));
 }
 

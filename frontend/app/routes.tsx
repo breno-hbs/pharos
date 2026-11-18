@@ -1,4 +1,4 @@
-import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Preference, type Route, type Trip } from "./data";
+import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Participation, type Preference, type Route, type Trip } from "./data";
 import { BackButton, Icon, Legend, SectionTitle } from "./ui";
 
 function warningCount(route: Route) {
@@ -79,12 +79,14 @@ export function HistoryCard({ className = "" }: { className?: string }) {
   );
 }
 
-export function Details({ trip, route, onBack, onPin, onReport }: {
+export function Details({ trip, route, participation, reportSent, onBack, onPin, onReport }: {
   trip: Trip;
   route: Route;
+  participation: Participation;
+  reportSent: boolean;
   onBack: () => void;
-  onPin?: (category: Category) => void;
-  onReport?: () => void;
+  onPin: (category: Category) => void;
+  onReport: () => void;
 }) {
   const walkTo = Math.floor(route.walking / 2);
   const walkFrom = route.walking - walkTo;
@@ -116,8 +118,8 @@ export function Details({ trip, route, onBack, onPin, onReport }: {
                 <div className="timeline-title"><h2>{step.title}</h2><time>{offsetTime(trip.time, step.offset)}</time></div>
                 <p>{step.path}</p><p className="step-duration">{step.duration}</p>
                 {category && (
-                  <button type="button" className="step-warning" disabled={!onPin} onClick={() => onPin?.(category.id)}>
-                    <Icon name={category.icon} />{category.label} · 1 aviso próximo · {observations[category.id].count} confirmações
+                  <button type="button" className="step-warning" onClick={() => onPin(category.id)}>
+                    <Icon name={category.icon} />{category.label} · 1 aviso próximo · {observations[category.id].count + Number(participation[category.id] === "confirmed")} confirmações
                   </button>
                 )}
               </div>
@@ -136,14 +138,15 @@ export function Details({ trip, route, onBack, onPin, onReport }: {
           const category = categories.find((item) => item.id === id)!;
           const observation = observations[id];
           return (
-            <button type="button" key={id} className="voice-card" disabled={!onPin} onClick={() => onPin?.(id)}>
+            <button type="button" key={id} className="voice-card" onClick={() => onPin(id)}>
               <span><Icon name={category.icon} /><strong>{category.label}</strong> <small>RELATO SIMULADO</small></span>
-              <p>{observation.description}</p><small>{observation.date} · {observation.count} confirmações</small>
+              <p>{observation.description}</p><small>{observation.date} · {observation.count + Number(participation[id] === "confirmed")} confirmações</small>
             </button>
           );
         })}
       </section>
-      {onReport && <button type="button" className="button primary" onClick={onReport}><Icon name="plus" />Adicionar observação</button>}
+      {reportSent && <div className="feedback" role="status"><Icon name="check" /><div><strong>Observação enviada</strong><p>Envio simulado. Seu relato aguarda moderação na demonstração.</p></div></div>}
+      <button type="button" className="button primary" onClick={onReport}><Icon name="plus" />Adicionar observação</button>
       <div className="mobile-only"><Legend /></div>
       <p className="fine-print">Informações para apoiar decisões, não para prever crimes ou garantir segurança. Confira condições e serviços por outros meios.</p>
     </div>

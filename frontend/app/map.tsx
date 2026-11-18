@@ -124,8 +124,9 @@ function MapDrawing({ frame, mode, trip, selected, filters, participation, expan
   );
 }
 
-export function MapView({ mode, trip, selected = "a", participation = {}, onPin, children }: {
+export function MapView({ mode, mobileMode, trip, selected = "a", participation = {}, onPin, children }: {
   mode: MapMode;
+  mobileMode?: MapMode;
   trip: Trip;
   selected?: RouteLine;
   participation?: Participation;
@@ -135,13 +136,13 @@ export function MapView({ mode, trip, selected = "a", participation = {}, onPin,
   const [hidden, setHidden] = useState<Category[]>([]);
   const [zoom, setZoom] = useState(1);
   const [expanded, setExpanded] = useState(false);
-  const frames = mapVariants[mode];
+  const frames = [mapVariants[mobileMode ?? mode][0], mapVariants[mode][1]] as const;
   const filters = categories.map(({ id }) => id).filter((id) => !hidden.includes(id));
   return (
     <section className={`map map-${mode}`} aria-label="Mapa ilustrativo do Capão Redondo">
       {frames.map((frame, index) => (
         <div key={index} className={`map-art map-art-${index === 0 ? "mobile" : "desktop"}`} style={{ transform: `scale(${zoom})` }}>
-          <MapDrawing frame={frame} mode={mode} trip={trip} selected={selected} filters={filters}
+          <MapDrawing frame={frame} mode={index === 0 ? mobileMode ?? mode : mode} trip={trip} selected={selected} filters={filters}
             participation={participation} expanded={expanded} onPin={onPin}
             onExpand={() => { setExpanded(true); setZoom((value) => Math.max(1.2, value)); }} />
         </div>

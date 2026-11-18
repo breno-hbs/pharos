@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { orderedRoutes, routes, tripFromParams, type RouteId, type Trip } from "./data";
+import { categories, orderedRoutes, routes, tripFromParams, type Category, type Participation, type RouteId, type Trip } from "./data";
 import { MapView } from "./map";
+import { Observation, ReportForm } from "./observations";
 import { Planning } from "./planning";
 import { Comparison, Details, HistoryCard } from "./routes";
 import { Icon, Legend } from "./ui";
@@ -13,6 +14,7 @@ const screens = {
   plan: "planejamento",
   compare: "comparacao",
   detail: "detalhes",
+  report: "observacao",
 } as const;
 type Screen = keyof typeof screens;
 
@@ -20,11 +22,23 @@ export default function Prototype() {
   const params = useSearchParams();
   const screen = (Object.keys(screens) as Screen[]).find((key) => screens[key] === params.get("tela")) ?? "home";
   const [draft, setDraft] = useState(() => tripFromParams(params));
+  const [participation, setParticipation] = useState<Participation>({});
+  const [reportLocation, setReportLocation] = useState<Category>("dark");
+  const [reportSent, setReportSent] = useState(false);
+  const pin = categories.find(({ id }) => id === params.get("pin"))?.id;
+  const showPin = pin && screen !== "report";
+  const returnLabel = {
+    home: "Voltar ao mapa",
+    plan: "Voltar ao planejamento",
+    compare: "Voltar à comparação",
+    detail: `Voltar aos detalhes da rota ${params.get("rota")?.toUpperCase() ?? "A"}`,
+    report: "Voltar à rota",
+  }[screen];
   const trip = screen === "plan" ? draft : tripFromParams(params);
   const route = routes.find(({ id }) => id === params.get("rota")) ?? orderedRoutes(trip.preference)[0];
 
-  function go(next: Screen, { query = trip, selected, replace = false }: {
-    query?: Trip; selected?: RouteId; replace?: boolean;
+  function go(next: Screen, { query = trip, selected, observation, replace = false }: {
+    query?: Trip; selected?: RouteId; observation?: Category; replace?: boolean;
   } = {}) {
     const search = new URLSearchParams();
     if (next !== "home") {
@@ -34,6 +48,7 @@ export default function Prototype() {
       search.set("preferencia", query.preference);
       if (selected) search.set("rota", selected);
     }
+    if (observation) search.set("pin", observation);
     if (next === "plan") setDraft(query);
     const href = search.size ? `/?${search}` : "/";
     if (replace) {
@@ -44,11 +59,22 @@ export default function Prototype() {
     }
   }
 
+  const closePin = () => go(screen, { selected: route.id, replace: true });
+  const openPin = (observation: Category) => go(screen, { selected: route.id, observation });
+
+  const observationPanel = showPin && (
+    <Observation id={pin} choice={participation[pin]}
+      onChange={(choice) => setParticipation((previous) => ({ ...previous, [pin]: choice }))}
+      onClose={closePin} returnLabel={returnLabel} />
+  );
+
   return (
-    <div className={`prototype screen-${screen}`}>
+    <div className={`prototype screen-${screen}${showPin ? " with-pin" : ""}`}>
       <header className="site-header">
         <div className="brand-group">
-          {screen === "compare" && <button type="button" className="mobile-only header-back" aria-label="Voltar ao planejamento" onClick={() => go("plan")}><Icon name="back" /></button>}
+          {(showPin || screen === "compare" || screen === "report") && (
+            <button type="button" className="mobile-only header-back" aria-label="Voltar" onClick={showPin ? closePin : () => screen === "report" ? go("detail", { selected: route.id }) : go("plan")}><Icon name="back" /></button>
+          )}
           <button className="brand" type="button" onClick={() => go("home")} aria-label="PHAROS, início">
             <span className="brand-mark"><img src="/logo.png" alt="" /></span><strong>PHAROS</strong>
           </button>
@@ -60,7 +86,9 @@ export default function Prototype() {
       </header>
       <div className="demo"><Icon name="flask" />Demonstração · dados simulados</div>
       <main className="workspace">
-        <MapView key={screen} mode={screen} trip={trip} selected={screen === "compare" || screen === "detail" ? route.id : "a"}>
+        <MapView key={screen} mode={screen} trip={trip} selected={screen === "home" || screen === "plan" ? "a" : route.id}
+          mobileMode={showPin ? "pin" : undefined} participation={participation}
+          onPin={screen === "report" ? setReportLocation : openPin}>
           {screen === "plan" && (
             <aside className="map-message desktop-only">
               <p className="eyebrow">SEU BAIRRO, EM PERSPECTIVA</p>
@@ -80,6 +108,7 @@ export default function Prototype() {
               <div className="map-legend desktop-only"><Legend /></div>
             </>
           )}
+          {observationPanel && <div className="observation-on-map desktop-only">{observationPanel}</div>}
         </MapView>
         {screen !== "home" && (
           <section className="panel">
@@ -91,13 +120,25 @@ export default function Prototype() {
                 onSelect={(selected) => go("compare", { selected, replace: true })}
                 onDetails={() => go("detail", { selected: route.id })} />
             )}
-            {screen === "detail" && <Details trip={trip} route={route} onBack={() => go("compare", { selected: route.id })} />}
+            {screen === "detail" && (
+              <Details trip={trip} route={route} participation={participation} reportSent={reportSent}
+                onBack={() => go("compare", { selected: route.id })} onPin={openPin}
+                onReport={() => { setReportSent(false); setReportLocation("dark"); go("report", { selected: route.id }); }} />
+            )}
+            {screen === "report" && (
+              <ReportForm route={route.id} location={reportLocation} onLocation={setReportLocation}
+                onCancel={() => go("detail", { selected: route.id })}
+                onSend={() => { setReportSent(true); go("detail", { selected: route.id, replace: true }); }} />
+            )}
           </section>
         )}
+        {observationPanel && (
+          <div className="observation-sheet mobile-only"><div className="sheet-handle" aria-hidden="true" />{observationPanel}</div>
+        )}
       </main>
-      <div className="mobile-action">
+      {!showPin && screen !== "report" && <div className="mobile-action">
         <button type="button" className="button primary" onClick={() => go("plan")}><Icon name="arrow" />Para onde vamos?</button>
-      </div>
+      </div>}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { categories, orderedRoutes, routes, tripFromParams, type Category, type Participation, type RouteId, type Trip } from "./data";
+import { categories, hasMockConnection, orderedRoutes, routes, tripFromParams, type Category, type Participation, type PendingReport, type RouteId, type Trip } from "./data";
 import { MapView } from "./map";
 import { Observation, ReportForm } from "./observations";
 import { Planning } from "./planning";
@@ -24,19 +24,21 @@ export default function Prototype() {
   const [draft, setDraft] = useState(() => tripFromParams(params));
   const [participation, setParticipation] = useState<Participation>({});
   const [reportLocation, setReportLocation] = useState<Category>("dark");
-  const [reportSent, setReportSent] = useState(false);
+  const [reports, setReports] = useState<PendingReport[]>([]);
+  const [reportReceipt, setReportReceipt] = useState<string>();
   const pin = categories.find(({ id }) => id === params.get("pin"))?.id;
   const showPin = pin && screen !== "report";
+  const trip = screen === "plan" ? draft : tripFromParams(params);
+  const route = routes.find(({ id }) => id === params.get("rota")) ?? orderedRoutes(trip.preference)[0];
+  const available = hasMockConnection(trip);
+  const report = reports.find(({ receipt }) => receipt === reportReceipt);
   const returnLabel = {
     home: "Voltar ao mapa",
     plan: "Voltar ao planejamento",
     compare: "Voltar à comparação",
-    detail: `Voltar aos detalhes da rota ${params.get("rota")?.toUpperCase() ?? "A"}`,
+    detail: `Voltar aos detalhes da rota ${route.id.toUpperCase()}`,
     report: "Voltar à rota",
   }[screen];
-  const trip = screen === "plan" ? draft : tripFromParams(params);
-  const route = routes.find(({ id }) => id === params.get("rota")) ?? orderedRoutes(trip.preference)[0];
-
   function go(next: Screen, { query = trip, selected, observation, replace = false }: {
     query?: Trip; selected?: RouteId; observation?: Category; replace?: boolean;
   } = {}) {
@@ -87,7 +89,7 @@ export default function Prototype() {
       <div className="demo"><Icon name="flask" />Demonstração · dados simulados</div>
       <main className="workspace">
         <MapView key={screen} mode={screen} trip={trip} selected={screen === "home" || screen === "plan" ? "a" : route.id}
-          mobileMode={showPin ? "pin" : undefined} participation={participation}
+          mobileMode={showPin ? "pin" : undefined} participation={participation} available={available}
           onPin={screen === "report" ? setReportLocation : openPin}>
           {screen === "plan" && (
             <aside className="map-message desktop-only">
@@ -96,13 +98,13 @@ export default function Prototype() {
               <p>A mobilidade começa com informação. Compare conexões e leia observações moderadas, sem classificar trajetos por risco.</p>
             </aside>
           )}
-          {screen === "compare" && (
+          {screen === "compare" && available && (
             <aside className="map-message comparison-message desktop-only">
               <strong><Icon name="route" /> Rota {route.id.toUpperCase()} selecionada · {route.warnings.length} {route.warnings.length === 1 ? "aviso" : "avisos"}</strong>
               <p>Pins destacados pertencem ao entorno da rota. Cores indicam participação comunitária, não perigo.</p>
             </aside>
           )}
-          {screen === "detail" && (
+          {screen === "detail" && available && (
             <>
               <HistoryCard className="history-on-map desktop-only" />
               <div className="map-legend desktop-only"><Legend /></div>
@@ -114,21 +116,32 @@ export default function Prototype() {
           <section className="panel">
             <div className="sheet-handle" aria-hidden="true" />
             {screen === "plan" && <Planning trip={trip} setTrip={setDraft} onBack={() => go("home")} onSubmit={() => go("compare")} />}
-            {screen === "compare" && (
+            {!available && screen !== "plan" && (
+              <div className="panel-content empty-results">
+                <h1>Nenhum trajeto disponível</h1>
+                <p className="section-description">A demonstração não tem uma conexão cadastrada nesse sentido.</p>
+                <button type="button" className="button primary" onClick={() => go("plan")}>Editar origem e destino</button>
+              </div>
+            )}
+            {screen === "compare" && available && (
               <Comparison trip={trip} route={route} onEdit={() => go("plan")}
                 onSort={(preference) => go("compare", { query: { ...trip, preference }, selected: orderedRoutes(preference)[0].id, replace: true })}
                 onSelect={(selected) => go("compare", { selected, replace: true })}
                 onDetails={() => go("detail", { selected: route.id })} />
             )}
-            {screen === "detail" && (
-              <Details trip={trip} route={route} participation={participation} reportSent={reportSent}
+            {screen === "detail" && available && (
+              <Details trip={trip} route={route} participation={participation} report={report}
                 onBack={() => go("compare", { selected: route.id })} onPin={openPin}
-                onReport={() => { setReportSent(false); setReportLocation("dark"); go("report", { selected: route.id }); }} />
+                onReport={() => { setReportReceipt(undefined); setReportLocation("dark"); go("report", { selected: route.id }); }} />
             )}
-            {screen === "report" && (
+            {screen === "report" && available && (
               <ReportForm route={route.id} location={reportLocation} onLocation={setReportLocation}
                 onCancel={() => go("detail", { selected: route.id })}
-                onSend={() => { setReportSent(true); go("detail", { selected: route.id, replace: true }); }} />
+                onSend={(pending) => {
+                  setReports((current) => [...current, pending]);
+                  setReportReceipt(pending.receipt);
+                  go("detail", { selected: route.id, replace: true });
+                }} />
             )}
           </section>
         )}

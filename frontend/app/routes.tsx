@@ -1,4 +1,4 @@
-import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Participation, type Preference, type Route, type Trip } from "./data";
+import { categories, getStop, observations, offsetTime, orderedRoutes, preferences, type Category, type Participation, type PendingReport, type Preference, type Route, type Trip } from "./data";
 import { BackButton, Icon, Legend, SectionTitle } from "./ui";
 
 function warningCount(route: Route) {
@@ -79,11 +79,11 @@ export function HistoryCard({ className = "" }: { className?: string }) {
   );
 }
 
-export function Details({ trip, route, participation, reportSent, onBack, onPin, onReport }: {
+export function Details({ trip, route, participation, report, onBack, onPin, onReport }: {
   trip: Trip;
   route: Route;
   participation: Participation;
-  reportSent: boolean;
+  report?: PendingReport;
   onBack: () => void;
   onPin: (category: Category) => void;
   onReport: () => void;
@@ -93,11 +93,31 @@ export function Details({ trip, route, participation, reportSent, onBack, onPin,
   const busTime = route.minutes - route.walking;
   const origin = getStop(trip.origin);
   const destination = getStop(trip.destination);
-  const steps = [
-    { title: "Caminhe até o ponto", path: `${origin.name} → ${route.short}`, duration: `${walkTo} min · ${walkTo * 70} m`, offset: 0, icon: "walk" },
-    { title: `Ônibus ${route.lines.join(" + ")}`, path: `Ponto ${route.short} → conexão Capão Redondo`, duration: `${busTime} min · ${route.transfers ? "1 baldeação" : `sentido ${destination.id === "metro" ? "metrô" : "Jd. Comercial"}`}`, offset: walkTo, icon: "bus" },
-    { title: destination.id === "metro" ? "Caminhe até a estação" : "Caminhe até o destino", path: `Conexão → ${destination.name}`, duration: `${walkFrom} min · ${walkFrom * 65} m`, offset: walkTo + busTime, icon: "walk" },
+  const firstBusTime = route.transfers ? Math.floor((busTime - 3) / 2) : busTime;
+  const steps: { title: string; path: string; duration: string; offset: number; icon: string; warning?: Category }[] = [
+    { title: "Caminhe até o ponto", path: `${origin.name} → ${route.short}`, duration: `${walkTo} min · ${walkTo * 70} m`, offset: 0, icon: "walk", warning: route.warnings[0] },
+    {
+      title: `Ônibus ${route.lines[0]}`,
+      path: `Ponto ${route.short} → conexão Capão Redondo`,
+      duration: `${firstBusTime} min · ${route.transfers ? "até a conexão" : "sentido metrô"}`,
+      offset: walkTo, icon: "bus", warning: route.warnings[1],
+    },
   ];
+  if (route.transfers) {
+    const transferOffset = walkTo + firstBusTime;
+    steps.push(
+      { title: "Baldeação na mesma parada", path: "Conexão Capão Redondo", duration: "3 min de espera", offset: transferOffset, icon: "repeat" },
+      {
+        title: `Ônibus ${route.lines[1]}`, path: "Conexão Capão Redondo → desembarque no metrô",
+        duration: `${busTime - firstBusTime - 3} min · sentido metrô`, offset: transferOffset + 3, icon: "bus",
+      },
+    );
+  }
+  steps.push({
+    title: "Caminhe até a estação", path: `Desembarque → ${destination.name}`,
+    duration: `${walkFrom} min · ${walkFrom * 65} m`, offset: walkTo + busTime,
+    icon: "walk", warning: route.warnings[2],
+  });
   const letter = route.id.toUpperCase();
   return (
     <div className="panel-content details">
@@ -109,8 +129,8 @@ export function Details({ trip, route, participation, reportSent, onBack, onPin,
         <p>ITINERÁRIO E TEMPOS SIMULADOS</p>
       </div>
       <ol className="timeline">
-        {steps.map((step, i) => {
-          const category = categories.find(({ id }) => id === route.warnings[i]);
+        {steps.map((step) => {
+          const category = categories.find(({ id }) => id === step.warning);
           return (
             <li key={step.title}>
               <span className="step-icon"><Icon name={step.icon} /></span>
@@ -145,7 +165,13 @@ export function Details({ trip, route, participation, reportSent, onBack, onPin,
           );
         })}
       </section>
-      {reportSent && <div className="feedback" role="status"><Icon name="check" /><div><strong>Observação enviada</strong><p>Envio simulado. Seu relato aguarda moderação na demonstração.</p></div></div>}
+      {report && (
+        <div className="feedback" role="status">
+          <Icon name="check" /><div><strong>Observação enviada</strong>
+            <p>Recibo <b>{report.receipt}</b> · {report.status.toLowerCase()} de moderação. Envio simulado.</p>
+          </div>
+        </div>
+      )}
       <button type="button" className="button primary" onClick={onReport}><Icon name="plus" />Adicionar observação</button>
       <div className="mobile-only"><Legend /></div>
       <p className="fine-print">Informações para apoiar decisões, não para prever crimes ou garantir segurança. Confira condições e serviços por outros meios.</p>

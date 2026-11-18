@@ -328,3 +328,9 @@ select option { color: var(--text); background: var(--panel); }
   .panel-content, .observation-sheet .observation { padding-inline: 16px; }
   .route-card-top { gap: 5px; }
 }
+
+.simulation-label { color: var(--secondary); font-size: 10px; margin-top: 10px; }
+.simulation-label + .observation-actions { margin-top: 8px; }
+.empty-results h1 { margin-top: 14px; }
+.map-filters { flex-wrap: wrap; }
+.map-filters .clear-filters { color: var(--brand); }

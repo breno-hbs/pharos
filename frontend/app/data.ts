@@ -93,3 +93,16 @@ export function tripFromParams(params: Pick<URLSearchParams, "get">): Trip {
     preference: preferences.find(({ id }) => id === preference)?.id ?? defaultTrip.preference,
   };
 }
+
+
+export function hasMockConnection(trip: Trip) {
+  return trip.origin === "jardim" && trip.destination === "metro";
+}
+
+export type PendingReport = {
+  receipt: string;
+  status: "PENDENTE";
+  category: Category;
+  location: Category;
+  description: string;
+};

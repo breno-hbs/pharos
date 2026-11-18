@@ -58,7 +58,7 @@ export function Planning({ trip, setTrip, onBack, onSubmit }: {
         <Icon name="network" />
         <div><strong>Um território, mais contexto.</strong><p>Piloto no Capão Redondo, Zona Sul de São Paulo. Busca restrita às conexões previamente cadastradas nesta demonstração.</p></div>
       </aside>
-      <p className="fine-print">Itinerários, linhas, horários e locais aproximados são simulados. Não representam serviço operacional verificado.</p>
+      <p className="fine-print">Itinerários, linhas e locais aproximados são simulados. O horário informa a partida de referência. Os tempos do percurso são fixos na demonstração.</p>
       <div className="desktop-only"><Legend /></div>
     </div>
   );

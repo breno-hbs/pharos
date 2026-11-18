@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { categories, observations, participationBand, type Category, type Participation, type RouteId } from "./data";
+import { useId, useState } from "react";
+import { categories, observations, participationBand, type Category, type Participation, type PendingReport, type RouteId } from "./data";
 import { BackButton, Icon, Legend, SectionTitle } from "./ui";
 
 export function Observation({ id, choice, onChange, onClose, returnLabel }: {
@@ -9,6 +9,7 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
   onClose: () => void;
   returnLabel: string;
 }) {
+  const titleId = useId();
   const category = categories.find((item) => item.id === id)!;
   const observation = observations[id];
   const confirmed = choice === "confirmed";
@@ -18,7 +19,7 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
   const bandLabel = { low: "0–4 · participação inicial", medium: "5–14 · participação intermediária", high: "15+ · participação alta" }[band];
 
   return (
-    <section className={`observation observation-${band}`} aria-labelledby="observation-title">
+    <section className={`observation observation-${band}`} aria-labelledby={titleId}>
       {choice && (
         <div className="feedback" role="status">
           <Icon name="check" />
@@ -31,7 +32,7 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
         <span><Icon name={category.icon} />{category.label}</span>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Fechar observação"><Icon name="close" /></button>
       </div>
-      <h1 id="observation-title">{observation.place}</h1>
+      <h1 id={titleId}>{observation.place}</h1>
       <p className="observation-location">{observation.nearby} · local aproximado</p>
       <div className="reported-note">
         <strong>RELATO SIMULADO · MODERADO</strong>
@@ -43,6 +44,7 @@ export function Observation({ id, choice, onChange, onClose, returnLabel }: {
         <div><strong>confirmações da comunidade</strong><p>Faixa {bandLabel}{confirmed ? " · inclui a sua confirmação" : ""}</p></div>
       </div>
       <p className="fine-print">{contested ? "1 contestação" : "0 contestações"} · relato comunitário simulado</p>
+      <p className="simulation-label">Prévia do Figma · ações simuladas</p>
       <div className="observation-actions">
         <button type="button" className="button primary" aria-pressed={confirmed} onClick={() => onChange(confirmed ? undefined : "confirmed")}>
           <Icon name={confirmed ? "check" : "plus"} />{confirmed ? "Confirmado" : "Confirmar"}
@@ -63,17 +65,31 @@ export function ReportForm({ route, location, onLocation, onCancel, onSend }: {
   location: Category;
   onLocation: (location: Category) => void;
   onCancel: () => void;
-  onSend: () => void;
+  onSend: (report: PendingReport) => void;
 }) {
   const [category, setCategory] = useState<Category>("dark");
   const [description, setDescription] = useState("");
   const [editingLocation, setEditingLocation] = useState(false);
   const observation = observations[location];
+
+  function sendReport(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const text = description.trim();
+    if (!text || text.length > 500) return;
+    onSend({
+      receipt: `PH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+      status: "PENDENTE",
+      category,
+      location,
+      description: text,
+    });
+  }
+
   return (
     <div className="panel-content report">
       <SectionTitle step={`CONTRIBUIR / ROTA ${route.toUpperCase()}`}>O que você observou?</SectionTitle>
       <p className="section-description">Compartilhe o contexto do lugar. Sua observação passa por moderação antes de aparecer no mapa.</p>
-      <form onSubmit={(event) => { event.preventDefault(); if (description.trim()) onSend(); }}>
+      <form onSubmit={sendReport}>
         <fieldset className="report-categories">
           <legend>Categoria *</legend>
           <div>

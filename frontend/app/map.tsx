@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { categories, getStop, observations, participationBand, routes, type Category, type Participation, type Trip } from "./data";
+import { categories, findStop, observations, participationBand, type Category, type Participation, type Route, type Stop, type Trip } from "./data";
 import { artSizes, mapArt, type MapArt, type MapArtId, type MapLayer, type Point } from "./map-art";
 import { Icon } from "./ui";
 
@@ -40,10 +40,12 @@ function Layer({ frame, name, at, size, className = "" }: {
   );
 }
 
-function MapDrawing({ frame, mode, trip, selected, available, filters, participation, expanded, onExpand, onPin }: {
+function MapDrawing({ frame, mode, trip, stops, routes, selected, available, filters, participation, expanded, onExpand, onPin }: {
   frame: MapArtId;
   mode: MapMode;
   trip: Trip;
+  stops: readonly Stop[];
+  routes: readonly Route[];
   selected: RouteLine;
   available: boolean;
   filters: Category[];
@@ -58,7 +60,8 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
   const routeFrame = desktop ? "compare-desktop" : "compare-mobile";
   const comparisonArt = mapArt[routeFrame];
   const showAlternatives = mode === "compare" && available;
-  const visibleRoute = routes.find(({ id }) => id === selected)!;
+  const visibleRoute = routes.find(({ id }) => id === selected);
+  const visibleWarnings: readonly Category[] = visibleRoute?.warnings ?? [];
   const showRoute = !isHome && available;
   const drawLayer = (key: MapLayer, className?: string) => {
     const at = art.layers[key];
@@ -82,6 +85,7 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
       {showRoute && (
         <>
           {(["b", "c"] as const).map((route) => {
+            if (!routes.some(({ id }) => id === route)) return null;
             if (!showAlternatives && route !== selected) return null;
             const source = art.layers[route] ? frame : routeFrame;
             const geometry = art.layers[route] ? art : comparisonArt;
@@ -100,8 +104,8 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
         <>
           <span className="map-origin" style={labelStyle("origin")}><Icon name="origin" /></span>
           <span className="map-destination" style={labelStyle("destination")}><Icon name="train" /></span>
-          <span className="map-label place" style={labelStyle("originLabel")}>{getStop(trip.origin).short}</span>
-          <span className="map-label place destination-label" style={labelStyle("destinationLabel")}>{getStop(trip.destination).short}</span>
+          <span className="map-label place" style={labelStyle("originLabel")}>{findStop(stops, trip.origin).short}</span>
+          <span className="map-label place destination-label" style={labelStyle("destinationLabel")}>{findStop(stops, trip.destination).short}</span>
         </>
       )}
       {showAlternatives && routes.map(({ id: route, minutes }) => (
@@ -115,13 +119,13 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
         </button>
       )}
       {categories.map(({ id, label, icon }) => {
-        if ((mode === "detail" || mode === "report") && available && !(visibleRoute.warnings as readonly Category[]).includes(id)) return null;
+        if ((mode === "detail" || mode === "report") && available && !visibleWarnings.includes(id)) return null;
         let coordinates = art.pins[id];
         if (!coordinates && expanded && id !== "theft") coordinates = id === "dark" ? [235, 330] : [288, 283];
         if (!coordinates) return null;
         const count = observations[id].count + Number(participation[id] === "confirmed");
         const marker = <><Icon name={icon} /><small key={count} className="pin-count">{count}</small></>;
-        const outsideRoute = showAlternatives && !(visibleRoute.warnings as readonly Category[]).includes(id);
+        const outsideRoute = showAlternatives && !visibleWarnings.includes(id);
         const props = {
           className: `map-pin ${participationBand(count)}${outsideRoute ? " outside-route" : ""}`,
           style: position(coordinates, art.size),
@@ -136,10 +140,12 @@ function MapDrawing({ frame, mode, trip, selected, available, filters, participa
   );
 }
 
-export function MapView({ mode, mobileMode, trip, selected = "a", available = true, participation = {}, onPin, children }: {
+export function MapView({ mode, mobileMode, trip, stops = [], routes = [], selected = "a", available = true, participation = {}, onPin, children }: {
   mode: MapMode;
   mobileMode?: MapMode;
   trip: Trip;
+  stops?: readonly Stop[];
+  routes?: readonly Route[];
   selected?: RouteLine;
   available?: boolean;
   participation?: Participation;
@@ -155,7 +161,7 @@ export function MapView({ mode, mobileMode, trip, selected = "a", available = tr
     <section className={`map map-${mode}`} aria-label="Mapa ilustrativo do Capão Redondo">
       {frames.map((frame, index) => (
         <div key={index} className={`map-art map-art-${index === 0 ? "mobile" : "desktop"}`} style={{ transform: `scale(${zoom})` }}>
-          <MapDrawing frame={frame} mode={index === 0 ? mobileMode ?? mode : mode} trip={trip} selected={selected} available={available} filters={filters}
+          <MapDrawing frame={frame} mode={index === 0 ? mobileMode ?? mode : mode} trip={trip} stops={stops} routes={routes} selected={selected} available={available} filters={filters}
             participation={participation} expanded={expanded} onPin={onPin}
             onExpand={() => setZoom(1.2)} />
         </div>

@@ -475,3 +475,7 @@ select option { color: var(--text); background: var(--panel); }
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(var(--panel-exit-offset)); }
 }
+
+.history-list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 6px; }
+.history-list li { font-size: 12px; line-height: 1.35; }
+.history-list small { color: var(--secondary); }

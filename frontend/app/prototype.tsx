@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { categories, hasMockConnection, orderedRoutes, routes, tripFromParams, type Category, type Participation, type PendingReport, type RouteId, type Trip } from "./data";
+import { categories, tripFromParams, type Category, type Participation, type PendingReport, type RouteId, type Trip } from "./data";
 import { MapView } from "./map";
 import { Observation, ReportForm } from "./observations";
 import { Planning } from "./planning";
 import { Comparison, Details, HistoryCard } from "./routes";
 import { Icon, Legend } from "./ui";
+import { useStops, useTrajetos, type Remote } from "./use-api";
 import { useViewMotion } from "./view-motion";
 
 const screens = {
@@ -20,26 +21,55 @@ const screens = {
 type Screen = keyof typeof screens;
 const screenOrder = Object.keys(screens) as Screen[];
 
+function StatusPanel({ remote, onRetry, subject }: { remote: Remote<unknown>; onRetry: () => void; subject: string }) {
+  if (remote.status === "error") {
+    return (
+      <div className="panel-content empty-results" role="alert">
+        <h1>Não deu para carregar {subject}</h1>
+        <p className="section-description">{remote.message}</p>
+        <button type="button" className="button primary" onClick={onRetry}>Tentar de novo</button>
+      </div>
+    );
+  }
+  return (
+    <div className="panel-content empty-results" role="status" aria-live="polite">
+      <h1>Carregando {subject}…</h1>
+      <p className="section-description">
+        {remote.status === "loading" && remote.slow ? "Conectando à API. O servidor gratuito pode levar até um minuto para acordar na primeira consulta." : "Buscando dados na API do PHAROS."}
+      </p>
+    </div>
+  );
+}
+
 export default function Prototype() {
   const params = useSearchParams();
   const move = useViewMotion(params.toString());
   const screen = screenOrder.find((key) => screens[key] === params.get("tela")) ?? "home";
-  const [draft, setDraft] = useState(() => tripFromParams(params));
+  const [attempt, setAttempt] = useState(0);
+  const retry = () => setAttempt((value) => value + 1);
+  const stopsRemote = useStops(attempt);
+  const stops = useMemo(() => stopsRemote.status === "ok" ? stopsRemote.data : [], [stopsRemote]);
+  const [draft, setDraft] = useState<Trip>();
   const [participation, setParticipation] = useState<Participation>({});
   const [reportLocation, setReportLocation] = useState<Category>("dark");
   const [reports, setReports] = useState<PendingReport[]>([]);
   const [reportReceipt, setReportReceipt] = useState<string>();
   const pin = categories.find(({ id }) => id === params.get("pin"))?.id;
   const showPin = pin && screen !== "report";
-  const trip = screen === "plan" ? draft : tripFromParams(params);
-  const route = routes.find(({ id }) => id === params.get("rota")) ?? orderedRoutes(trip.preference)[0];
-  const available = hasMockConnection(trip);
+  const urlTrip = useMemo(() => tripFromParams(params, stops), [params, stops]);
+  const trip = screen === "plan" ? draft ?? urlTrip : urlTrip;
+  const needsRoutes = (screen === "compare" || screen === "detail" || screen === "report") && stopsRemote.status === "ok" && Boolean(trip.origin && trip.destination);
+  const { remote: trajetos, choose } = useTrajetos(needsRoutes ? trip : null, attempt);
+  const routes = trajetos.status === "ok" ? trajetos.data.routes : [];
+  const route = routes.find(({ id }) => id === params.get("rota")) ?? routes[0];
+  const available = trajetos.status !== "ok" || routes.length > 0;
+  const routeLetter = route?.id ?? "a";
   const report = reports.find(({ receipt }) => receipt === reportReceipt);
   const returnLabel = {
     home: "Voltar ao mapa",
     plan: "Voltar ao planejamento",
     compare: "Voltar à comparação",
-    detail: `Voltar aos detalhes da rota ${route.id.toUpperCase()}`,
+    detail: `Voltar aos detalhes da rota ${routeLetter.toUpperCase()}`,
     report: "Voltar à rota",
   }[screen];
   function go(next: Screen, { query = trip, selected, observation, replace = false }: {
@@ -49,6 +79,7 @@ export default function Prototype() {
     if (next !== "home") {
       search.set("tela", screens[next]);
       search.set("origem", query.origin);
+      search.set("destino", query.destination);
       search.set("hora", query.time);
       search.set("preferencia", query.preference);
       if (selected) search.set("rota", selected);
@@ -60,7 +91,7 @@ export default function Prototype() {
     const goesBack = screenOrder.indexOf(next) < screenOrder.indexOf(screen) || Boolean(showPin && !observation);
 
     move(nextQuery, () => {
-      if (next === "plan") setDraft(query);
+      setDraft(next === "plan" ? query : undefined);
       if (replace) {
         window.history.replaceState(null, "", href);
       } else {
@@ -70,8 +101,8 @@ export default function Prototype() {
     }, changesView ? (goesBack ? "back" : "forward") : undefined);
   }
 
-  const closePin = () => go(screen, { selected: route.id, replace: true });
-  const openPin = (observation: Category) => go(screen, { selected: route.id, observation });
+  const closePin = () => go(screen, { selected: route?.id, replace: true });
+  const openPin = (observation: Category) => go(screen, { selected: route?.id, observation });
 
   const observationPanel = showPin && (
     <Observation id={pin} choice={participation[pin]}
@@ -84,7 +115,7 @@ export default function Prototype() {
       <header className="site-header">
         <div className="brand-group">
           {(showPin || screen === "compare" || screen === "report") && (
-            <button type="button" className="mobile-only header-back" aria-label="Voltar" onClick={showPin ? closePin : () => screen === "report" ? go("detail", { selected: route.id }) : go("plan")}><Icon name="back" /></button>
+            <button type="button" className="mobile-only header-back" aria-label="Voltar" onClick={showPin ? closePin : () => screen === "report" ? go("detail", { selected: route?.id }) : go("plan")}><Icon name="back" /></button>
           )}
           <button className="brand" type="button" onClick={() => go("home")} aria-label="PHAROS, início">
             <span className="brand-mark"><img src="/logo.png" alt="" /></span><strong>PHAROS</strong>
@@ -95,9 +126,9 @@ export default function Prototype() {
         <span className="desktop-only pilot-label"><Icon name="help" /> Piloto ilustrativo</span>
         <span className="mobile-only pilot-label"><Icon name="pin" /> Zona Sul · SP</span>
       </header>
-      <div className="demo"><Icon name="flask" />Demonstração · dados simulados</div>
+      <div className="demo"><Icon name="flask" />Demonstração · trajetos da API · relatos e mapa simulados</div>
       <main className="workspace">
-        <MapView key={screen} mode={screen} trip={trip} selected={screen === "home" || screen === "plan" ? "a" : route.id}
+        <MapView key={screen} mode={screen} trip={trip} stops={stops} routes={routes} selected={screen === "home" || screen === "plan" ? "a" : routeLetter}
           mobileMode={showPin ? "pin" : undefined} participation={participation} available={available}
           onPin={screen === "report" ? setReportLocation : openPin}>
           {screen === "plan" && (
@@ -107,15 +138,15 @@ export default function Prototype() {
               <p>A mobilidade começa com informação. Compare conexões e leia observações moderadas, sem classificar trajetos por risco.</p>
             </aside>
           )}
-          {screen === "compare" && available && (
+          {screen === "compare" && route && (
             <aside className="map-message comparison-message desktop-only">
-              <strong><Icon name="route" /> Rota {route.id.toUpperCase()} selecionada · {route.warnings.length} {route.warnings.length === 1 ? "aviso" : "avisos"}</strong>
+              <strong><Icon name="route" /> Rota {route.id.toUpperCase()} selecionada · {route.warnings.length} {route.warnings.length === 1 ? "aviso" : "avisos"} (simulados)</strong>
               <p>Pins destacados pertencem ao entorno da rota. Cores indicam participação comunitária, não perigo.</p>
             </aside>
           )}
-          {screen === "detail" && available && (
+          {screen === "detail" && route && (
             <>
-              <HistoryCard className="history-on-map desktop-only" />
+              <HistoryCard route={route} className="history-on-map desktop-only" />
               <div className="map-legend desktop-only"><Legend /></div>
             </>
           )}
@@ -124,26 +155,28 @@ export default function Prototype() {
         {screen !== "home" && (
           <section className="panel">
             <div className="sheet-handle" aria-hidden="true" />
-            {screen === "plan" && <Planning trip={trip} setTrip={setDraft} onBack={() => go("home")} onSubmit={() => go("compare")} />}
-            {!available && screen !== "plan" && (
+            {stopsRemote.status !== "ok" && <StatusPanel remote={stopsRemote} onRetry={retry} subject="as paradas" />}
+            {stopsRemote.status === "ok" && screen === "plan" && <Planning trip={trip} stops={stops} setTrip={setDraft} onBack={() => go("home")} onSubmit={() => go("compare")} />}
+            {needsRoutes && trajetos.status !== "ok" && <StatusPanel remote={trajetos} onRetry={retry} subject="os trajetos" />}
+            {needsRoutes && trajetos.status === "ok" && routes.length === 0 && (
               <div className="panel-content empty-results">
                 <h1>Nenhum trajeto disponível</h1>
-                <p className="section-description">A demonstração não tem uma conexão cadastrada nesse sentido.</p>
-                <button type="button" className="button primary" onClick={() => go("plan")}>Editar origem e destino</button>
+                <p className="section-description">{trajetos.data.response.mensagem ?? "Não há trajetos calculados para esse par de paradas neste horário."}</p>
+                <button type="button" className="button primary" onClick={() => go("plan")}>Editar origem, destino ou horário</button>
               </div>
             )}
-            {screen === "compare" && available && (
-              <Comparison trip={trip} route={route} onEdit={() => go("plan")}
-                onSort={(preference) => go("compare", { query: { ...trip, preference }, selected: orderedRoutes(preference)[0].id, replace: true })}
+            {screen === "compare" && route && (
+              <Comparison trip={trip} stops={stops} routes={routes} route={route} onEdit={() => go("plan")}
+                onSort={(preference) => go("compare", { query: { ...trip, preference }, replace: true })}
                 onSelect={(selected) => go("compare", { selected, replace: true })}
-                onDetails={() => go("detail", { selected: route.id })} />
+                onDetails={() => { choose(route.idAlternativa); go("detail", { selected: route.id }); }} />
             )}
-            {screen === "detail" && available && (
-              <Details trip={trip} route={route} participation={participation} report={report}
+            {screen === "detail" && route && (
+              <Details trip={trip} stops={stops} route={route} participation={participation} report={report}
                 onBack={() => go("compare", { selected: route.id })} onPin={openPin}
                 onReport={() => { setReportReceipt(undefined); setReportLocation("dark"); go("report", { selected: route.id }); }} />
             )}
-            {screen === "report" && available && (
+            {screen === "report" && route && (
               <ReportForm route={route.id} location={reportLocation} onLocation={setReportLocation}
                 onCancel={() => go("detail", { selected: route.id })}
                 onSend={(pending) => {

@@ -61,3 +61,35 @@ export const observations = {
 } satisfies Record<Category, { place: string; nearby: string; description: string; date: string; count: number }>;
 
 export const participationBand = (count: number) => count >= 15 ? "high" : count >= 5 ? "medium" : "low";
+
+export const routes = [
+  { id: "a", caption: "Menor duração", via: "Estrada de Itapecerica", short: "Estr. de Itapecerica", minutes: 32, walking: 8, transfers: 0, lines: ["675K-10"], warnings: ["theft", "dark", "other"] },
+  { id: "b", caption: "Menos caminhada", via: "Av. Ellis Maas", short: "Av. Ellis Maas", minutes: 39, walking: 5, transfers: 1, lines: ["6016-10", "675K-10"], warnings: ["dark", "theft"] },
+  { id: "c", caption: "Outra opção", via: "Av. Comendador Sant’Anna", short: "Av. Com. Sant’Anna", minutes: 44, walking: 12, transfers: 0, lines: ["6820-10"], warnings: ["theft"] },
+] as const;
+
+export type Route = (typeof routes)[number];
+export type RouteId = Route["id"];
+
+export function orderedRoutes(preference: Preference) {
+  const metric = preference === "duration" ? "minutes" : preference;
+  return [...routes].sort((a, b) => a[metric] - b[metric] || a.minutes - b.minutes);
+}
+
+export function offsetTime(time: string, offset: number) {
+  const [hours, minutes] = time.split(":").map(Number);
+  const total = (hours * 60 + minutes + offset) % (24 * 60);
+  return [Math.floor(total / 60), total % 60].map((value) => String(value).padStart(2, "0")).join(":");
+}
+
+export function tripFromParams(params: Pick<URLSearchParams, "get">): Trip {
+  const origin = params.get("origem") === "metro" ? "metro" : "jardim";
+  const preference = params.get("preferencia");
+  const time = params.get("hora");
+  return {
+    origin,
+    destination: origin === "metro" ? "jardim" : "metro",
+    time: time && /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : defaultTrip.time,
+    preference: preferences.find(({ id }) => id === preference)?.id ?? defaultTrip.preference,
+  };
+}

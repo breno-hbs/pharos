@@ -2,6 +2,23 @@
 
 **Plataforma de mobilidade com informações históricas de segurança.**
 
+Global Solution 2026.2 · FIAP · Engenharia de Software · Turma 2ESPX
+
+## Integrantes
+
+| Nome completo | RM |
+|---|---|
+| Breno Henrique Bortoloti Santos | RM562856 |
+| Lucas Santana Silva | RM566261 |
+| Nicolas Tetsuo Kimura | RM565377 |
+| Pedro Cunha Coutinho | RM562191 |
+| Pedro Henrique dos Santos | RM564188 |
+
+## Vídeos
+
+- **Vídeo pitch:** https://youtu.be/7YikqvaSn2Q
+- **AR/VR (Unreal Engine):** https://youtu.be/52kk_Q3gI8g
+
 ## Ficha da CitizenTech
 
 **Nome da CitizenTech:** Pharos — Plataforma de mobilidade com informações históricas de segurança.
@@ -21,10 +38,10 @@
 - **Front-end:** interface web para planejar e comparar trajetos.
 - **Java — Domain Driven Design:** API REST em Spring Boot para gerenciar locais, trechos, conexões, consultas e informações dos percursos.
 - **Database Design:** banco Oracle para armazenar dados estruturados de transporte e indicadores históricos.
-- **Data Science:** análise de registros históricos e desenvolvimento de modelos de regressão linear e logística.
+- **Data Science:** atividade própria da disciplina neste semestre, "O custo invisível do café": investigação estatística de oito marcas fictícias de café em cápsulas para propor uma estratégia de consumo consciente. É entregue em PDF à parte e não usa dados do Pharos.
 - **Dynamic Programming:** algoritmo Python para calcular caminhos em uma rede piloto utilizando grafos.
 - **Network Architect:** simulação no Cisco Packet Tracer de uma infraestrutura de informações ao passageiro.
-- **AR/VR:** experiência 3D para demonstrar alternativas de deslocamento em um ambiente urbano ou terminal.
+- **AR/VR:** vídeo gravado pelo Sequencer da Unreal Engine, com cenário e objeto central ligados ao tema CitizenTech ([link acima](#vídeos)).
 - **Agile:** definição de requisitos, personas, casos de uso, backlog, protótipos e apresentação da solução.
 
 **Link do repositório:** https://github.com/breno-hbs/pharos

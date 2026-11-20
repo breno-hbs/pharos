@@ -4,7 +4,7 @@ Registro dos prompts de IA usados no PHAROS, como pede a guia da Global Solution
 
 **Como ler:** cada item tem o objetivo, o pedido feito (resumido), o que a IA devolveu e **como a equipe validou** o resultado. Nenhum prompt contém dados pessoais reais; os dados de exemplo são simulados ou públicos (SSP-SP, GTFS da ARTESP).
 
-> Os prompts deste arquivo foram escritos por **Breno** (API Java, integração front↔API, Network Architect, documentação e vídeo). Cada integrante acrescenta os seus abaixo, em uma seção própria.
+> Os prompts deste arquivo foram registrados por **Breno** (API Java, integração front↔API, Network Architect, documentação e vídeo) e por **Pedro Henrique dos Santos** (Database Design e Dynamic Programming), cada um em sua seção.
 
 ## Breno · API Java, integração, rede, documentação e vídeo
 
@@ -41,15 +41,6 @@ Registro dos prompts de IA usados no PHAROS, como pede a guia da Global Solution
 - **Objetivo:** alinhar o diagrama 3.4 ao que a API faz.
 - **Pedido:** trocar "caminhada" por "distância" no UC04 e retirar o rodapé "pendente".
 - **Como validamos:** comparação com a Ficha e com o front.
-
-## Lucas Santana Silva
-_(adicionar os prompts)_
-
-## Nicolas Tetsuo Kimura
-_(adicionar os prompts)_
-
-## Pedro Cunha Coutinho
-_(adicionar os prompts)_
 
 ## Pedro Henrique dos Santos · Database Design e Dynamic Programming
 
